@@ -1,18 +1,18 @@
 # Experiments
 
 Real experiments run on this platform with real model calls (Hermes Agent
-v0.22.1, models served by Ollama Cloud through a local Ollama daemon).
+v0.22.1, models from Ollama Cloud through Ollama on the local machine).
 
-| Experiment                                                            | Question                                                                                             | Verdict                                                                     |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [Model swap: gpt-oss 20B → 120B](ANALYSIS.md#experiment-1-model-swap) | Does a 6× larger model pass more core tasks on the same harness?                                     | **No detectable difference**: +5.6 pp (95% CI −8.3 to +19.4), p = 0.63      |
-| [Memory & skills on/off](ANALYSIS.md#experiment-2-memory--skills)     | Do persistent memory and team skills improve tasks that depend on them, without regressing controls? | **Better**: +69.7 pp (95% CI +45.5 to +90.9), p = 0.004; controls unchanged |
+| Experiment                                                                            | Question                                                                                  | Result                                                                              |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [Changing the model: gpt-oss 20B → 120B](ANALYSIS.md#experiment-1-changing-the-model) | Does a 6× bigger model pass more core tasks with the same Hermes setup?                   | **No detectable difference**: +5.6 pp (95% range −8.3 to +19.4), p = 0.63           |
+| [Memory and skills on/off](ANALYSIS.md#experiment-2-memory-and-skills)                | Do memory and team skills help on tasks that need them, without making other tasks worse? | **Better**: +69.7 pp (95% range +45.5 to +90.9), p = 0.004; control tasks unchanged |
 
-- **[ANALYSIS.md](ANALYSIS.md)** — interpretation of the results (start here).
-- `*.md` — full generated reports (per-config, per-comparison and per-task tables).
-- `*.json` — raw export: experiment, report and every run summary.
+- **[ANALYSIS.md](ANALYSIS.md)** — what the results mean (start here).
+- `*.md` — the full generated reports (results per config, per comparison and per task).
+- `*.json` — the raw data: the experiment, the report and every run.
 
-## Reproduce
+## Run it again yourself
 
 ```bash
 docker compose up --build
@@ -29,6 +29,7 @@ curl -s localhost:3000/api/experiments -H 'content-type: application/json' -d '{
 node scripts/export-report.mjs <experimentId> docs/experiments
 ```
 
-The seed fixes the run order and the statistics' resampling. Model outputs are
-stochastic, so a re-run will not reproduce run-level results exactly — which is
-precisely why every comparison is made on several trials with intervals.
+The seed fixes the run order and the random steps in the statistics. But
+models give different answers each time, so a new run will not match these
+results exactly. That is exactly why every comparison uses several tries and
+a confidence range.

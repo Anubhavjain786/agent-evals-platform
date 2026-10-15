@@ -53,12 +53,12 @@ const BOOTSTRAP_ITERATIONS = 4000;
 const PERMUTATION_ITERATIONS = 20000;
 
 const METHOD = [
-  'Unit of analysis is the task: each task contributes its mean over trials, so every task weighs equally.',
-  `Intervals are ${CONFIDENCE * 100}% two-level cluster-bootstrap percentile intervals (resample tasks, then trials within each task; ${BOOTSTRAP_ITERATIONS} iterations).`,
-  'Comparisons are paired by task. p-values come from a two-sided sign-flip permutation test on per-task differences (exact for ≤ 16 tasks) and are Holm–Bonferroni adjusted across all comparisons against the baseline.',
-  `A difference is called significant only when the adjusted p-value is below ${ALPHA.toFixed(2)} and the interval excludes zero.`,
-  'Runs that ended in infrastructure errors (provider outages, throttling, harness crashes) are excluded; timeouts and exhausted turn budgets count as failures.',
-  'All resampling is seeded with the experiment seed, so the report is reproducible.',
+  'Each task counts once: we take the average of its tries, so every task has the same weight.',
+  `The ${CONFIDENCE * 100}% ranges come from a two-level bootstrap: we pick tasks at random (with repeats), then tries within each task, recompute the result ${BOOTSTRAP_ITERATIONS} times, and keep the middle ${CONFIDENCE * 100}%.`,
+  'The configs are compared task by task. The p-value comes from a sign-flip test on the per-task differences (exact for up to 16 tasks) and is adjusted with the Holm method, because several configs may be compared with the baseline.',
+  `We call a difference real only when the adjusted p-value is below ${ALPHA.toFixed(2)} and the range does not include zero.`,
+  'Runs that failed because of provider or setup problems (infrastructure errors) are left out; timeouts and running out of turns count as failures.',
+  'All random steps use the experiment seed, so the same data always gives the same report.',
 ].join(' ');
 
 const pct = (value: number): string => `${(value * 100).toFixed(1)}`;
@@ -293,9 +293,9 @@ function summarize(input: {
 }): string {
   const { passRate: m, candidateName, baselineName } = input;
   if (input.verdict === 'insufficient_data') {
-    return `Not enough paired results to compare ${candidateName} with ${baselineName} (need at least 2 tasks scored for both).`;
+    return `Not enough results to compare ${candidateName} with ${baselineName} (both need results on at least 2 of the same tasks).`;
   }
-  const stats = `${signedPp(m.delta)} pass rate (95% CI ${signedPp(m.ci.low)} to ${signedPp(m.ci.high)}; p ${m.pValueAdjusted < 0.001 ? '< 0.001' : `= ${formatP(m.pValueAdjusted)}`}, Holm-adjusted, n = ${input.pairedTasks} tasks)`;
+  const stats = `${signedPp(m.delta)} pass rate (95% range ${signedPp(m.ci.low)} to ${signedPp(m.ci.high)}; p ${m.pValueAdjusted < 0.001 ? '< 0.001' : `= ${formatP(m.pValueAdjusted)}`} after adjusting for multiple comparisons; ${input.pairedTasks} tasks)`;
   if (input.verdict === 'better')
     return `${candidateName} is better than ${baselineName}: ${stats}.`;
   if (input.verdict === 'worse') return `${candidateName} is worse than ${baselineName}: ${stats}.`;
@@ -317,36 +317,38 @@ function buildWarnings(input: {
   const { status, trials } = input.input;
   if (status === 'queued' || status === 'running') {
     warnings.push(
-      'The experiment is still running; these results are provisional and will change.',
+      'The experiment is still running, so these results are not final and will change.',
     );
   }
   if (status === 'cancelled')
-    warnings.push('The experiment was cancelled; results cover only the runs that finished.');
+    warnings.push(
+      'The experiment was cancelled, so these results only include the runs that finished.',
+    );
   if (input.errorRuns > 0) {
     warnings.push(
-      `${input.errorRuns} run(s) ended in infrastructure errors and are excluded from the statistics. Retry them to restore balance between configs.`,
+      `${input.errorRuns} run(s) failed because of provider or setup problems (infrastructure errors) and are left out of the statistics. Retry them so both configs have the same number of runs.`,
     );
   }
   if (input.scorerErrorRuns > 0) {
     warnings.push(
-      `${input.scorerErrorRuns} run(s) had a scorer error (for example, the LLM judge was unreachable); those checks counted as failed.`,
+      `${input.scorerErrorRuns} run(s) had a check that could not run (for example, the LLM judge was not reachable); those checks counted as failed.`,
     );
   }
   if (trials === 1) {
     warnings.push(
-      'Each task ran once per config, so run-to-run variance is not measured separately; use 3+ trials for tighter, more honest intervals.',
+      'Each task ran only once per config, so we cannot tell luck from skill on single tasks. Use 3 or more tries for more reliable ranges.',
     );
   }
   const minPaired = Math.min(...input.comparisons.map((c) => c.pairedTasks));
   if (input.comparisons.length > 0 && minPaired < 10) {
     warnings.push(
-      `Only ${minPaired} paired task(s) per comparison: intervals are wide and only large effects are detectable.`,
+      `Only ${minPaired} task(s) can be compared, so the ranges are wide and only big differences can be noticed.`,
     );
   }
   const unknownCost = input.configStats.filter((c) => c.scoredRuns > 0 && c.meanCostUsd === null);
   if (unknownCost.length > 0) {
     warnings.push(
-      `Cost is unknown for ${unknownCost.map((c) => c.configName).join(', ')} (no Hermes pricing and no pricing table in the config).`,
+      `Cost is unknown for ${unknownCost.map((c) => c.configName).join(', ')} (Hermes does not know the price and the config has no prices).`,
     );
   }
   return warnings;

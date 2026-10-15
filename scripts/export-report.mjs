@@ -44,10 +44,10 @@ const lines = [
   '',
   experiment.description ? `> ${experiment.description}\n` : '',
   `- **Suite:** ${experiment.suite.name} (\`${experiment.suite.id}@${experiment.suite.version}\`), ${experiment.taskCount} tasks`,
-  `- **Design:** ${experiment.taskCount} tasks × ${experiment.configs.length} configs × ${experiment.trials} trials = ${experiment.progress.total} runs, interleaved in seeded random order (seed ${experiment.seed})`,
-  `- **Status:** ${experiment.status} — ${experiment.progress.completed} scored, ${experiment.progress.error} infrastructure errors, ${experiment.progress.cancelled} cancelled`,
+  `- **Setup:** ${experiment.taskCount} tasks × ${experiment.configs.length} configs × ${experiment.trials} tries = ${experiment.progress.total} runs, in a mixed, repeatable order (seed ${experiment.seed})`,
+  `- **Status:** ${experiment.status} — ${experiment.progress.completed} checked, ${experiment.progress.error} provider or setup errors, ${experiment.progress.cancelled} cancelled`,
   `- **Ran:** ${experiment.startedAt ?? experiment.createdAt} → ${experiment.finishedAt ?? 'in progress'}`,
-  `- **Spend (list-price equivalent):** ${usd(experiment.totalCostUsd)}`,
+  `- **Cost at list prices:** ${usd(experiment.totalCostUsd)}`,
   '',
   '## Configurations',
   '',
@@ -66,12 +66,12 @@ const lines = [
     ]);
   }),
   '',
-  '## Verdict',
+  '## Result',
   '',
   ...report.comparisons.flatMap((c) => [
     `**${c.verdict.replaceAll('_', ' ').toUpperCase()}** — ${c.summary}`,
     '',
-    row(['Metric', 'Baseline', 'Candidate', 'Δ (candidate − baseline)', '95% CI', 'p (Holm)']),
+    row(['Metric', 'Baseline', 'Candidate', 'Difference', '95% range', 'p-value (adjusted)']),
     row(['---', '---:', '---:', '---:', '---', '---:']),
     row([
       'Pass rate',
@@ -82,7 +82,7 @@ const lines = [
       p(c.passRate.pValueAdjusted),
     ]),
     row([
-      'Mean score',
+      'Average score',
       pct(c.meanScore.baseline),
       pct(c.meanScore.candidate),
       pp(c.meanScore.delta),
@@ -92,21 +92,21 @@ const lines = [
     '',
     `Tasks won / lost / tied by the candidate: **${c.wins} / ${c.losses} / ${c.ties}** (of ${c.pairedTasks} paired). ` +
       (c.minimumDetectableEffect !== null
-        ? `Minimum detectable pass-rate effect at 80% power: ±${(c.minimumDetectableEffect * 100).toFixed(0)} pp.`
+        ? `Smallest pass-rate difference this experiment could reliably notice: ±${(c.minimumDetectableEffect * 100).toFixed(0)} pp.`
         : ''),
     '',
   ]),
-  '## Per-config results',
+  '## Results per config',
   '',
   row([
     'Config',
-    'Pass rate (95% CI)',
-    'Mean score (95% CI)',
-    'Scored runs',
-    'Infra errors',
+    'Pass rate (95% range)',
+    'Average score (95% range)',
+    'Checked runs',
+    'Provider/setup errors',
     'Cost / run',
     'Cost / pass',
-    'Latency mean (p95)',
+    'Time per run: average (slowest 5%)',
     'Tokens / run',
     'Tool calls / run',
   ]),
@@ -126,9 +126,9 @@ const lines = [
     ]),
   ),
   '',
-  '## Per-task results',
+  '## Results per task',
   '',
-  'Passes / scored runs per config. ⚠ = flaky (passed on some trials, failed on others).',
+  'Each cell shows passed runs / checked runs. ⚠ = flaky (passed on some tries and failed on others).',
   '',
   row(['Task', 'Tags', ...experiment.configs.map((c) => c.name)]),
   row(['---', '---', ...experiment.configs.map(() => ':---:')]),
@@ -145,9 +145,9 @@ const lines = [
   ),
   '',
   report.warnings.length
-    ? '## Caveats\n\n' + report.warnings.map((w) => `- ${w}`).join('\n') + '\n'
+    ? '## Things to keep in mind\n\n' + report.warnings.map((w) => `- ${w}`).join('\n') + '\n'
     : '',
-  '## Method',
+  '## How the numbers are calculated',
   '',
   report.method,
   '',

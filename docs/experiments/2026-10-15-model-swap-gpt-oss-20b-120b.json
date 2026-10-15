@@ -567,7 +567,7 @@
   },
   "report": {
     "experimentId": "c1cd8a5a-14ca-489e-8797-a36d2905b24a",
-    "generatedAt": "2026-10-15T07:33:42.574Z",
+    "generatedAt": "2026-10-15T18:48:33.192Z",
     "confidenceLevel": 0.95,
     "alpha": 0.050000000000000044,
     "baselineConfigId": "gpt-oss-20b",
@@ -659,7 +659,7 @@
         "ties": 8,
         "minimumDetectableEffect": 0.15564362326926745,
         "verdict": "no_detectable_difference",
-        "summary": "No detectable difference between gpt-oss 120B · file+terminal and gpt-oss 20B · file+terminal: +5.6 pp pass rate (95% CI −8.3 pp to +19.4 pp; p = 0.625, Holm-adjusted, n = 12 tasks). With this many tasks and this much variation, only differences of about 15.6 pp or more would be reliably detected.",
+        "summary": "No detectable difference between gpt-oss 120B · file+terminal and gpt-oss 20B · file+terminal: +5.6 pp pass rate (95% range −8.3 pp to +19.4 pp; p = 0.625 after adjusting for multiple comparisons; 12 tasks). With this many tasks and this much variation, only differences of about 15.6 pp or more would be reliably detected.",
         "costDeltaUsd": 0.0028388661111111114,
         "durationDeltaMs": -4875.6111111111095
       }
@@ -1032,7 +1032,7 @@
       }
     ],
     "warnings": [],
-    "method": "Unit of analysis is the task: each task contributes its mean over trials, so every task weighs equally. Intervals are 95% two-level cluster-bootstrap percentile intervals (resample tasks, then trials within each task; 4000 iterations). Comparisons are paired by task. p-values come from a two-sided sign-flip permutation test on per-task differences (exact for ≤ 16 tasks) and are Holm–Bonferroni adjusted across all comparisons against the baseline. A difference is called significant only when the adjusted p-value is below 0.05 and the interval excludes zero. Runs that ended in infrastructure errors (provider outages, throttling, harness crashes) are excluded; timeouts and exhausted turn budgets count as failures. All resampling is seeded with the experiment seed, so the report is reproducible."
+    "method": "Each task counts once: we take the average of its tries, so every task has the same weight. The 95% ranges come from a two-level bootstrap: we pick tasks at random (with repeats), then tries within each task, recompute the result 4000 times, and keep the middle 95%. The configs are compared task by task. The p-value comes from a sign-flip test on the per-task differences (exact for up to 16 tasks) and is adjusted with the Holm method, because several configs may be compared with the baseline. We call a difference real only when the adjusted p-value is below 0.05 and the range does not include zero. Runs that failed because of provider or setup problems (infrastructure errors) are left out; timeouts and running out of turns count as failures. All random steps use the experiment seed, so the same data always gives the same report."
   },
   "runs": [
     {
