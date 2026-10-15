@@ -1,0 +1,12 @@
+# A different model family on the same harness, for cross-family comparisons.
+id: gemma4-31b
+name: Gemma 4 31B · file+terminal
+description: gemma4:31b via Ollama with file and terminal tools. No memory, no skills.
+model:
+  provider: custom
+  name: gemma4:31b-cloud
+  baseUrl: ${OLLAMA_BASE_URL:-http://localhost:11434/v1}
+  contextLength: 131072
+  pricing: { inputPerMTok: 0.1, outputPerMTok: 0.3 }
+toolsets: [file, terminal]
+maxTurns: 20

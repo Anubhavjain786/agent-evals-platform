@@ -1,0 +1,25 @@
+id,name,email,active
+737,Ken Hopper,Ken.Hopper@Example.COM,yes
+361,Margaret Ritchie,Margaret.Ritchie@Example.COM,N
+859,Linus Hopper,not-an-email,N
+467,Linus Torvalds,Linus.Torvalds-at-example.com,no
+914,Margaret Torvalds,Margaret.Torvalds@Example.COM,Y
+807,Barbara Hamilton,Barbara.Hamilton@Example.COM,false
+961,Margaret Torvalds,Margaret.Torvalds@Example.COM,false
+857,Margaret Ritchie,Margaret.Ritchie@Example.COM,Y
+767,Dennis Torvalds,Dennis.Torvalds@Example.COM,Y
+642,Grace Liskov,Grace.Liskov@Example.COM,true
+129,Radia Lovelace,Radia.Lovelace@Example.COM,false
+960,Barbara Hopper,Barbara.Hopper@Example.COM,Y
+576,Frances Liskov,Frances@,false
+894,Linus Lovelace,Linus.Lovelace@Example.COM,yes
+355,Barbara Ritchie,Barbara@,Y
+764,Dennis Perlman,Dennis.Perlman@Example.COM,N
+153,Ada Torvalds,Ada.Torvalds@Example.COM,no
+260,Grace Hamilton,Grace.Hamilton@Example.COM,N
+215,Barbara Thompson,Barbara.Thompson@Example.COM,true
+480,Alan Allen,not-an-email,Y
+580,Alan Lovelace,Alan.Lovelace@Example.COM,yes
+989,Margaret Liskov,Margaret.Liskov@Example.COM,Y
+352,Linus Liskov,Linus.Liskov@Example.COM,false
+489,Ken Hopper,Ken.Hopper@Example.COM,Y

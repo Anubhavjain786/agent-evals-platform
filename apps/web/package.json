@@ -1,0 +1,33 @@
+{
+  "name": "@agent-evals/web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vue 3 UI for defining, running and inspecting agent evaluations.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc -p tsconfig.app.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@agent-evals/shared": "1.0.0",
+    "@tanstack/vue-query": "^5.90.5",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/node": "^22.18.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^27.0.0",
+    "tailwindcss": "^4.1.14",
+    "vite": "^7.1.9",
+    "vitest": "^4.1.11",
+    "vue-tsc": "^3.1.1"
+  }
+}

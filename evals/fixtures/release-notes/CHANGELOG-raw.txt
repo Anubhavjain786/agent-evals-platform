@@ -1,0 +1,12 @@
+Merged PRs since v2.3.0 (copied from the merge queue, unedited):
+
+#412 feat: bulk export of contacts to CSV (up to 100k rows)
+#415 fix: calendar invites showed UTC instead of the user's timezone
+#418 chore: bump eslint to 9.x
+#420 feat!: remove deprecated /v1/webhooks endpoint (use /v2/webhooks)
+#421 fix: crash when a pipeline stage was renamed while a deal was being dragged
+#423 docs: typo in README
+#425 feat: SMS templates support {{first_name}} and {{appointment_time}} variables
+#427 fix: duplicate emails sent when a workflow was re-published
+#430 refactor!: API tokens now expire after 90 days by default (configurable)
+#431 test: flaky snapshot test in billing

@@ -1,0 +1,12 @@
+# Same harness as gpt-oss-20b; only the model changes.
+id: gpt-oss-120b
+name: gpt-oss 120B · file+terminal
+description: gpt-oss:120b via Ollama with file and terminal tools. No memory, no skills.
+model:
+  provider: custom
+  name: gpt-oss:120b-cloud
+  baseUrl: ${OLLAMA_BASE_URL:-http://localhost:11434/v1}
+  contextLength: 131072
+  pricing: { inputPerMTok: 0.09, outputPerMTok: 0.45 }
+toolsets: [file, terminal]
+maxTurns: 20

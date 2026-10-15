@@ -1,0 +1,16 @@
+# Baseline: small open-weight model, file + terminal tools, no memory, no skills.
+# Served through a local Ollama daemon (Ollama Cloud models need `ollama signin`).
+# OLLAMA_BASE_URL lets the same file work in Docker and on the host.
+id: gpt-oss-20b
+name: gpt-oss 20B · file+terminal
+description: gpt-oss:20b via Ollama with file and terminal tools. No memory, no skills.
+model:
+  provider: custom
+  name: gpt-oss:20b-cloud
+  baseUrl: ${OLLAMA_BASE_URL:-http://localhost:11434/v1}
+  contextLength: 131072
+  # Ollama Cloud is billed by subscription; these OpenRouter list prices give a
+  # pay-per-token equivalent so cost comparisons stay meaningful.
+  pricing: { inputPerMTok: 0.04, outputPerMTok: 0.16 }
+toolsets: [file, terminal]
+maxTurns: 20

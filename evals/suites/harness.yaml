@@ -1,0 +1,127 @@
+# Harness-feature tasks: each one is solvable only with knowledge that lives in
+# Hermes' persistent memory or in a skill, plus control tasks that need
+# neither. Comparing a config with and without memory/skills shows both the
+# gain on the targeted tasks and any regression on the controls.
+id: harness
+name: Memory & skills tasks
+description: >-
+  Two tasks that depend on facts from earlier sessions (persistent memory), two
+  that depend on team procedures packaged as skills, and two control tasks
+  that should not change when memory or skills are turned on.
+tasks:
+  - id: memory-house-style-notice
+    name: Customer notice in house style
+    tags: [memory, writing]
+    prompt: |
+      Write a short notice (3–5 sentences) to customers about a two-day shipping
+      delay caused by a carrier strike, and save it to notice.md. Follow my
+      usual house style for customer notices.
+    scoring:
+      scorers:
+        - { id: notice-exists, type: file_exists, path: notice.md, required: true }
+        - id: greeting-and-signoff
+          type: contains
+          target: 'file:notice.md'
+          values: ['Hi there,', '— The Acme Support Team']
+          caseSensitive: true
+        - id: support-email
+          type: contains
+          target: 'file:notice.md'
+          values: [help@acme.example]
+        - id: no-exclamation-marks
+          type: contains
+          target: 'file:notice.md'
+          negate: true
+          values: ['!']
+
+  - id: memory-staging-database-url
+    name: Staging database URL from project context
+    tags: [memory, tools]
+    prompt: |
+      Create a .env.staging file containing a single DATABASE_URL line for our
+      staging Postgres database: database `orders`, user `svc_orders`, and the
+      password taken from the shell variable at runtime, written literally as
+      ${DB_PASSWORD}.
+    scoring:
+      scorers:
+        - { id: file-exists, type: file_exists, path: .env.staging, required: true }
+        - id: url
+          type: regex
+          target: 'file:.env.staging'
+          pattern: '^DATABASE_URL=["'']?postgres(ql)?://svc_orders:\$\{DB_PASSWORD\}@db-staging\.internal\.acme\.example:6543/orders["'']?\s*$'
+          flags: m
+
+  - id: skill-validate-invoice-ids
+    name: Validate ACME invoice IDs
+    tags: [skills, data]
+    fixtures: invoice-ids
+    prompt: |
+      invoices.txt lists invoice IDs, one per line. Write the IDs that are valid
+      ACME invoice IDs to valid.txt, one per line. Use our ACME invoice ID rules.
+    scoring:
+      scorers:
+        - type: command
+          run: python3 check_valid.py
+          hiddenFixtures: invoice-ids-hidden
+
+  - id: skill-release-notes
+    name: Release notes in house format
+    tags: [skills, writing]
+    fixtures: release-notes
+    prompt: |
+      Write customer-facing release notes for v2.4.0 into RELEASE_NOTES.md from
+      the merged PRs in CHANGELOG-raw.txt, using our release notes format.
+    scoring:
+      passThreshold: 0.8
+      scorers:
+        - { id: notes-exist, type: file_exists, path: RELEASE_NOTES.md, required: true }
+        - id: sections
+          type: contains
+          target: 'file:RELEASE_NOTES.md'
+          values: ['# Release v2.4.0', '## ⚠️ Breaking changes', '## ✨ Highlights', '## 🐛 Fixes']
+          caseSensitive: true
+        - id: pr-references
+          type: contains
+          target: 'file:RELEASE_NOTES.md'
+          values: ['(#412)', '(#415)', '(#420)', '(#421)', '(#425)', '(#427)', '(#430)']
+        - id: no-internal-prs
+          type: contains
+          target: 'file:RELEASE_NOTES.md'
+          negate: true
+          values: ['#418', '#423', '#431']
+        - id: faithful
+          type: llm_judge
+          target: 'file:RELEASE_NOTES.md'
+          rubric: |
+            The notes must be written for customers, in plain language, and be
+            faithful to the PR list (no invented features). Breaking changes
+            (#420 removal of /v1/webhooks, #430 token expiry after 90 days) must
+            tell the customer what to do. Score 10 for accurate, clear,
+            actionable notes; deduct for inaccuracies, jargon or missing actions.
+
+  - id: control-discount-stacking
+    name: 'Control: stacked discounts'
+    tags: [control, reasoning]
+    prompt: |
+      A bike costs $480. It is discounted 15%, then an extra $20 is taken off,
+      then 5% sales tax is added. What is the final price in dollars, rounded to
+      the cent? Reply with just the number.
+    scoring:
+      scorers:
+        - type: numeric
+          expected: 407.4
+          tolerance: 0.005
+    limits: { timeoutSec: 180, maxTurns: 5 }
+
+  - id: control-count-todo-files
+    name: 'Control: count files with TODO markers'
+    tags: [control, tools]
+    fixtures: todo-count
+    prompt: |
+      How many Python source files (*.py) under src/ contain the uppercase
+      marker "TODO" at least once? Lowercase "todo" does not count, and only
+      files ending in .py count. Reply with just the number.
+    scoring:
+      scorers:
+        - type: numeric
+          expected: 3

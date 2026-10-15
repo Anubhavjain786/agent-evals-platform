@@ -1,0 +1,28 @@
+# gpt-oss-120b plus Hermes' persistent memory (seeded with facts from "earlier
+# sessions") and the team's skills. Compare against gpt-oss-120b on the
+# `harness` suite to measure what memory + skills buy you.
+id: gpt-oss-120b-memory-skills
+name: gpt-oss 120B · +memory +skills
+description: gpt-oss-120b with persistent memory and the ACME skills enabled.
+model:
+  provider: custom
+  name: gpt-oss:120b-cloud
+  baseUrl: ${OLLAMA_BASE_URL:-http://localhost:11434/v1}
+  contextLength: 131072
+  pricing: { inputPerMTok: 0.09, outputPerMTok: 0.45 }
+toolsets: [file, terminal, skills, memory]
+skills:
+  include: [acme-invoice-ids, release-notes-format]
+memory:
+  enabled: true
+  notes:
+    - >-
+      House style for customer notices: open with "Hi there," and sign off with
+      "— The Acme Support Team". Always include the support address
+      help@acme.example. Never use exclamation marks.
+    - >-
+      Staging Postgres lives at db-staging.internal.acme.example on port 6543
+      (not the default 5432). Production must never be touched from an agent session.
+  userProfile:
+    - The user is a support engineer at Acme who prefers concise answers.
+maxTurns: 20
