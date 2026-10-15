@@ -39,7 +39,9 @@ SQLite with Drizzle · Hermes Agent v0.22.1 · Docker
 
 ## Quick start
 
-**You need:** Docker (Docker Desktop on Mac or Windows) and access to a model.
+**You need:** Docker (Docker Desktop on Mac or Windows) with **at least 8 GB of
+free disk space** inside Docker (the image is about 5 GB, and Hermes needs room
+to start), and access to a model.
 
 The sample configs use [Ollama](https://ollama.com) on your computer. Ollama
 can run "cloud" models, so you do not need a GPU. Sign in and download the
