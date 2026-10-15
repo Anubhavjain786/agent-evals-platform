@@ -1,4 +1,8 @@
 # Single-command local run:  docker compose up --build   →  http://localhost:3000
+# A fixed project name keeps the container and data volume the same whatever
+# the checkout folder is called.
+name: agent-evals-platform
+
 services:
   agent-evals:
     build: .
