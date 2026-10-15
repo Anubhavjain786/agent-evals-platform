@@ -1,0 +1,19 @@
+diff --git a/services/api/src/orders/pagination.ts b/services/api/src/orders/pagination.ts
+index 3f2c1aa..8b7e0d2 100644
+--- a/services/api/src/orders/pagination.ts
++++ b/services/api/src/orders/pagination.ts
+@@ -12,9 +12,12 @@ export function paginate<T>(items: T[], page: number, pageSize: number): Page<T> {
+-  const start = page * pageSize;
+-  const end = start + pageSize + 1;
++  if (page < 1 || pageSize < 1) {
++    throw new RangeError('page and pageSize must be >= 1');
++  }
++  const start = (page - 1) * pageSize;
++  const end = start + pageSize;
+   return {
+     items: items.slice(start, end),
+-    hasMore: end < items.length,
++    hasMore: end < items.length,
+     page,
+   };
+ }

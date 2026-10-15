@@ -8,7 +8,7 @@ describe('format', () => {
     expect(pct(null)).toBe('—');
     expect(pp(0.183)).toBe('+18.3 pp');
     expect(pp(-0.05, 0)).toBe('−5 pp');
-    expect(pp(0)).toBe('±0.0 pp');
+    expect(pp(0)).toBe('0.0 pp');
   });
 
   it('formats money, durations, counts and p-values', () => {

@@ -12,7 +12,7 @@ model:
   pricing: { inputPerMTok: 0.09, outputPerMTok: 0.45 }
 toolsets: [file, terminal, skills, memory]
 skills:
-  include: [acme-invoice-ids, release-notes-format]
+  include: [acme-invoice-ids, release-notes-format, incident-severity]
 memory:
   enabled: true
   notes:
@@ -23,6 +23,15 @@ memory:
     - >-
       Staging Postgres lives at db-staging.internal.acme.example on port 6543
       (not the default 5432). Production must never be touched from an agent session.
+    - >-
+      Commit messages in the main repo use Conventional Commits prefixed with the
+      ticket key in brackets, e.g. "[OPS-4821] fix(api): …". The current sprint
+      ticket is OPS-4821.
+    - >-
+      Production AWS infrastructure lives in eu-central-1 (Frankfurt). us-east-1 is
+      legacy and must not be used for new resources.
   userProfile:
-    - The user is a support engineer at Acme who prefers concise answers.
+    - >-
+      Support engineer at Acme. Prefers concise answers, metric units (km, °C) and
+      24-hour time in every answer.
 maxTurns: 20

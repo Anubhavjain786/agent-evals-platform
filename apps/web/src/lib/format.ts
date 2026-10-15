@@ -9,7 +9,7 @@ export function pct(value: number | null | undefined, digits = 1): string {
 /** 0.183 → "+18.3 pp" (percentage points, for differences of rates) */
 export function pp(value: number | null | undefined, digits = 1): string {
   if (!isNum(value)) return '—';
-  const sign = value > 0 ? '+' : value < 0 ? '−' : '±';
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
   return `${sign}${Math.abs(value * 100).toFixed(digits)} pp`;
 }
 

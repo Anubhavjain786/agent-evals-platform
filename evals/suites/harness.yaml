@@ -5,8 +5,8 @@
 id: harness
 name: Memory & skills tasks
 description: >-
-  Two tasks that depend on facts from earlier sessions (persistent memory), two
-  that depend on team procedures packaged as skills, and two control tasks
+  Five tasks that depend on facts from earlier sessions (persistent memory),
+  four that depend on team procedures packaged as skills, and two control tasks
   that should not change when memory or skills are turned on.
 tasks:
   - id: memory-house-style-notice
@@ -50,6 +50,58 @@ tasks:
           target: 'file:.env.staging'
           pattern: '^DATABASE_URL=["'']?postgres(ql)?://svc_orders:\$\{DB_PASSWORD\}@db-staging\.internal\.acme\.example:6543/orders["'']?\s*$'
           flags: m
+
+  - id: memory-preferred-units
+    name: Answer in the user's preferred units
+    tags: [memory, reasoning]
+    prompt: |
+      I'm driving 150 miles to the Leeds warehouse at an average of 50 mph,
+      leaving at 1:45 PM. How far is it and what time will I arrive? One line,
+      in the units and time format I prefer.
+    scoring:
+      scorers:
+        - id: kilometres
+          type: regex
+          pattern: '\b24[01](\.\d+)?\s?(km|kilomet)'
+          flags: i
+        - id: twenty-four-hour-time
+          type: contains
+          values: ['16:45']
+    limits: { timeoutSec: 180, maxTurns: 5 }
+
+  - id: memory-commit-convention
+    name: Commit message following the team convention
+    tags: [memory, coding]
+    fixtures: commit-message
+    prompt: |
+      Write the commit message for the change in change.diff to COMMIT_MSG.txt,
+      following this repository's commit message conventions. Subject line only.
+    scoring:
+      scorers:
+        - { id: file-exists, type: file_exists, path: COMMIT_MSG.txt, required: true }
+        - id: convention
+          type: regex
+          target: 'file:COMMIT_MSG.txt'
+          pattern: '^\[OPS-4821\] (feat|fix|chore|refactor|docs|test|perf)(\([a-z0-9-]+\))?: \S.+'
+
+  - id: memory-production-region
+    name: Terraform provider for the production region
+    tags: [memory, coding]
+    prompt: |
+      Write provider.tf with the AWS provider block for our production account.
+      Credentials come from the environment, so do not include any.
+    scoring:
+      scorers:
+        - { id: file-exists, type: file_exists, path: provider.tf, required: true }
+        - id: region
+          type: regex
+          target: 'file:provider.tf'
+          pattern: 'region\s*=\s*"eu-central-1"'
+        - id: not-legacy-region
+          type: contains
+          target: 'file:provider.tf'
+          negate: true
+          values: [us-east-1]
 
   - id: skill-validate-invoice-ids
     name: Validate ACME invoice IDs
@@ -98,6 +150,32 @@ tasks:
             (#420 removal of /v1/webhooks, #430 token expiry after 90 days) must
             tell the customer what to do. Score 10 for accurate, clear,
             actionable notes; deduct for inaccuracies, jargon or missing actions.
+
+  - id: skill-generate-invoice-ids
+    name: Generate ACME invoice IDs
+    tags: [skills, data]
+    prompt: |
+      Create the ACME invoice IDs for year 2026 with sequence numbers 00042,
+      00777 and 31415, and write them to new_ids.txt, one per line.
+    scoring:
+      scorers:
+        - type: command
+          run: python3 check_new_ids.py
+          hiddenFixtures: invoice-generate-hidden
+
+  - id: skill-incident-severity
+    name: Classify incident severities by policy
+    tags: [skills, data]
+    fixtures: incident-severity
+    prompt: |
+      Classify every incident in incidents.json using our incident severity
+      policy. Write severities.json mapping each incident id to its level
+      (SEV1, SEV2, SEV3 or SEV4), e.g. {"INC-101": "SEV2"}.
+    scoring:
+      scorers:
+        - type: command
+          run: python3 check_severities.py
+          hiddenFixtures: incident-severity-hidden
 
   - id: control-discount-stacking
     name: 'Control: stacked discounts'

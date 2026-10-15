@@ -1,11 +1,11 @@
 # Example of a hosted frontier model through OpenRouter (needs OPENROUTER_API_KEY).
 # Hermes prices OpenRouter models itself, so no pricing table is needed.
 id: claude-sonnet-openrouter
-name: Claude Sonnet (OpenRouter) · file+terminal
-description: anthropic/claude-sonnet-4.6 via OpenRouter with file and terminal tools.
+name: Claude Sonnet 5.5 (OpenRouter) · file+terminal
+description: anthropic/claude-sonnet-5.5 via OpenRouter with file and terminal tools.
 model:
   provider: openrouter
-  name: anthropic/claude-sonnet-4.6
+  name: anthropic/claude-sonnet-5.5
   apiKeyEnv: OPENROUTER_API_KEY
 toolsets: [file, terminal]
 maxTurns: 20

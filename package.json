@@ -20,7 +20,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test",
+    "demo:record": "node scripts/record-demo.mjs",
+    "report": "node scripts/export-report.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
@@ -29,6 +31,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.5.0",
     "globals": "^16.4.0",
+    "playwright-core": "^1.64.1",
     "prettier": "^3.6.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.0",
@@ -40,6 +43,7 @@
     "esbuild@0.28.2": true,
     "@swc/core@1.16.18": true,
     "better-sqlite3@12.11.1": true,
-    "vue-demi@0.14.10": true
+    "vue-demi@0.14.10": true,
+    "fsevents": false
   }
 }
