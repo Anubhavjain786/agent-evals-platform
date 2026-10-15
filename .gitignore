@@ -22,3 +22,6 @@ apps/api/data/
 
 # Local tool configuration
 .claude/
+
+# Task fixtures are test data (including fake .env secrets and logs): always commit them
+!evals/fixtures/**
