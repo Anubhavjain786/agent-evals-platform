@@ -140,6 +140,14 @@ export function classifyOutcome(input: {
   if (/budget|deadline|timeout/i.test(exitReason)) {
     return { status: 'timeout', errorMessage: `Run budget exhausted (${exitReason})` };
   }
+  // A run that failed before a single model call never exercised the agent:
+  // that is a harness problem (bad flags, config, start-up), not an agent failure.
+  if (result.exitCode !== 0 && (report?.api_calls ?? 0) === 0 && result.tokens.total === 0) {
+    return {
+      status: 'infra_error',
+      errorMessage: error ?? 'Hermes failed before calling the model',
+    };
+  }
   if (result.exitCode === 0) return { status: 'completed', errorMessage: null };
   return { status: 'failed', errorMessage: error ?? `Hermes exited with code ${result.exitCode}` };
 }

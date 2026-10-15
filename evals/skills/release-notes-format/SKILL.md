@@ -11,10 +11,12 @@ metadata:
 # Acme release notes format
 
 ## When to Use
+
 Whenever you are asked to write release notes, a changelog entry or a
 "what's new" summary for an Acme release.
 
 ## Procedure
+
 1. Start with a level-1 heading: `# Release vX.Y.Z`.
 2. Use exactly these level-2 sections, in this order, omitting a section only
    if it would be empty:
@@ -29,8 +31,10 @@ Whenever you are asked to write release notes, a changelog entry or a
    non-breaking `refactor:`.
 
 ## Pitfalls
+
 - A `!` PR goes ONLY under Breaking changes, never also under Highlights.
 - Do not invent features that are not in the PR list.
 
 ## Verification
+
 Every customer-facing PR appears exactly once; no internal PR appears.

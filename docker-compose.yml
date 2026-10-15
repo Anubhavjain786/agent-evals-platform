@@ -1,0 +1,26 @@
+# Single-command local run:  docker compose up --build   →  http://localhost:3000
+services:
+  agent-evals:
+    build: .
+    image: agent-evals:local
+    # Reaps orphaned processes spawned by agent tools (shells, gateways, ...).
+    init: true
+    ports:
+      - '${PORT:-3000}:3000'
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Ollama on the host (Ollama Cloud models need `ollama signin` on the host).
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      JUDGE_BASE_URL: ${JUDGE_BASE_URL:-http://host.docker.internal:11434/v1}
+      JUDGE_MODEL: ${JUDGE_MODEL:-gemma4:31b-cloud}
+      MAX_CONCURRENCY: ${MAX_CONCURRENCY:-4}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - agent-evals-data:/data
+    restart: unless-stopped
+
+volumes:
+  agent-evals-data:

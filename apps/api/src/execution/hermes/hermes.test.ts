@@ -94,7 +94,10 @@ describe('classifyOutcome', () => {
 
   it('maps Hermes outcomes to run statuses', () => {
     expect(classifyOutcome({ ...base, result: result(0) }).status).toBe('completed');
-    expect(classifyOutcome({ ...base, result: result(1, 'model gave up') }).status).toBe('failed');
+    expect(
+      classifyOutcome({ ...base, result: result(1, 'model gave up'), report: { api_calls: 2 } })
+        .status,
+    ).toBe('failed');
     expect(classifyOutcome({ ...base, result: null }).status).toBe('infra_error');
     expect(classifyOutcome({ ...base, result: result(0), timedOut: true }).status).toBe('timeout');
     expect(classifyOutcome({ ...base, result: result(0), cancelled: true }).status).toBe(
@@ -107,6 +110,20 @@ describe('classifyOutcome', () => {
         report: { turn_exit_reason: 'max_iterations_reached(20/20)' },
       }).status,
     ).toBe('max_turns');
+  });
+
+  it('treats a failure before any model call as a harness error, not an agent failure', () => {
+    const unsupportedFlag = result(1, 'Unsupported gateway CLI options: --run-budget');
+    expect(
+      classifyOutcome({ ...base, result: unsupportedFlag, report: { api_calls: 0 } }).status,
+    ).toBe('infra_error');
+    const agentGaveUp = {
+      ...result(1, 'gave up'),
+      tokens: { input: 900, output: 10, total: 910, cacheRead: 0 },
+    };
+    expect(classifyOutcome({ ...base, result: agentGaveUp, report: { api_calls: 3 } }).status).toBe(
+      'failed',
+    );
   });
 
   it('treats provider throttling, quota and outages as infrastructure errors', () => {
@@ -194,7 +211,7 @@ describe('Hermes home and arguments', () => {
         },
         hermesConfig: { terminal: { timeout: 60 } },
       }),
-      { maxTurns: 7, env: {} },
+      { maxTurns: 7, runBudgetSec: 300, env: {} },
     );
     expect(generated).toMatchObject({
       model: {
@@ -203,7 +220,7 @@ describe('Hermes home and arguments', () => {
         base_url: 'http://localhost:11434/v1',
         api_key: '${MY_KEY}',
       },
-      agent: { max_turns: 7 },
+      agent: { max_turns: 7, run_budget_seconds: 300 },
       memory: { memory_enabled: false, user_profile_enabled: false },
       auxiliary: { background_review: { enabled: false }, title_generation: { enabled: false } },
       terminal: { cwd: '.', timeout: 60 },
@@ -225,6 +242,7 @@ describe('Hermes home and arguments', () => {
         persona: 'You are terse.',
       }),
       maxTurns: 5,
+      runBudgetSec: 60,
       env: {},
       skillDir: (id) => join(skills, id),
     });
@@ -251,7 +269,6 @@ describe('Hermes home and arguments', () => {
       promptFile: '/run/prompt.txt',
       usageFile: '/run/usage.json',
       maxTurns: 9,
-      runBudgetSec: 120,
     });
     expect(args.slice(0, 3)).toEqual(['--usage-file', '/run/usage.json', 'chat']);
     expect(args).toEqual(
@@ -265,7 +282,8 @@ describe('Hermes home and arguments', () => {
       ]),
     );
     expect(args.join(' ')).toContain('--max-turns 9');
-    expect(args.join(' ')).toContain('--run-budget 120');
+    // Hermes rejects --run-budget through its gateway; the budget lives in config.yaml.
+    expect(args).not.toContain('--run-budget');
     expect(args.join(' ')).toContain('--toolsets file,terminal');
     expect(args.join(' ')).toContain('--skills a');
   });

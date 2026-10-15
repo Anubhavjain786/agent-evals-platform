@@ -7,6 +7,7 @@ import type { AgentRunner, AgentRunRequest, AgentRunResult } from '../agent-runn
 import { TailBuffer, runManagedProcess } from '../process';
 import { cleanFinalAnswer } from './final-answer';
 import { buildHermesArgs, materializeHermesHome } from './hermes-home';
+import { HermesStartupGate, reapHermesProcesses } from './hermes-processes';
 import { HermesStreamParser } from './stream-parser';
 import { classifyOutcome, type HermesUsageReport, toRunUsage } from './usage';
 
@@ -37,6 +38,7 @@ export class HermesCliRunner implements AgentRunner {
   constructor(
     @Inject(APP_CONFIG) private readonly appConfig: AppConfig,
     private readonly skills: SkillsLibraryService,
+    private readonly startupGate: HermesStartupGate,
   ) {}
 
   async run(request: AgentRunRequest): Promise<AgentRunResult> {
@@ -44,37 +46,44 @@ export class HermesCliRunner implements AgentRunner {
     const promptFile = join(dirs.root, 'prompt.txt');
     const usageFile = join(dirs.root, 'usage.json');
 
+    const runBudgetSec = Math.max(30, Math.floor(request.timeoutMs / 1000));
     await materializeHermesHome({
       home: dirs.home,
       config,
       maxTurns: request.maxTurns,
+      runBudgetSec,
       env: process.env,
       skillDir: (id) => this.skills.skillDir(id),
     });
     await writeFile(promptFile, task.prompt, { mode: 0o600 });
+    const args = buildHermesArgs({ config, promptFile, usageFile, maxTurns: request.maxTurns });
 
-    const runBudgetSec = Math.max(30, Math.floor(request.timeoutMs / 1000));
-    const args = buildHermesArgs({
-      config,
-      promptFile,
-      usageFile,
-      maxTurns: request.maxTurns,
-      runBudgetSec,
+    // One cold start at a time; the gate opens once the agent produces its first real event.
+    const releaseStartup = await this.startupGate.acquire();
+    const parser = new HermesStreamParser((event) => {
+      if (event.type !== 'init') releaseStartup();
+      request.onEvent(event);
     });
-
-    const parser = new HermesStreamParser(request.onEvent);
     const stderr = new TailBuffer(LOG_TAIL_BYTES);
     const startedAt = Date.now();
-    const processResult = await runManagedProcess({
-      command: this.appConfig.hermesBin,
-      args,
-      cwd: dirs.workspace,
-      env: this.buildEnv(request),
-      timeoutMs: request.timeoutMs + HARD_KILL_GRACE_MS,
-      signal: request.signal,
-      onStdout: (chunk) => parser.push(chunk),
-      onStderr: (chunk) => stderr.push(chunk),
-    });
+    let processResult: Awaited<ReturnType<typeof runManagedProcess>>;
+    try {
+      processResult = await runManagedProcess({
+        command: this.appConfig.hermesBin,
+        args,
+        cwd: dirs.workspace,
+        env: this.buildEnv(request),
+        timeoutMs: request.timeoutMs + HARD_KILL_GRACE_MS,
+        signal: request.signal,
+        onStdout: (chunk) => parser.push(chunk),
+        onStderr: (chunk) => stderr.push(chunk),
+      });
+    } finally {
+      releaseStartup();
+      const reaped = await reapHermesProcesses(dirs.home);
+      if (reaped > 0)
+        this.logger.debug(`Run ${request.runId}: reaped ${reaped} leftover Hermes process(es)`);
+    }
     parser.end();
     const durationMs = Date.now() - startedAt;
 

@@ -39,7 +39,7 @@ export function expandEnv(value: string, env: NodeJS.ProcessEnv): string {
  */
 export function buildHermesConfig(
   config: AgentConfigDefinition,
-  options: { maxTurns: number; env: NodeJS.ProcessEnv },
+  options: { maxTurns: number; runBudgetSec: number; env: NodeJS.ProcessEnv },
 ): ConfigTree {
   const { model, memory } = config;
   const modelSection: ConfigTree = { provider: model.provider, default: model.name };
@@ -49,7 +49,11 @@ export function buildHermesConfig(
   if (model.apiKeyEnv && model.provider === 'custom')
     modelSection.api_key = `\${${model.apiKeyEnv}}`;
 
-  const agentSection: ConfigTree = { max_turns: options.maxTurns };
+  // The run budget gives the agent a wrap-up notice at 80% before the hard kill.
+  const agentSection: ConfigTree = {
+    max_turns: options.maxTurns,
+    run_budget_seconds: options.runBudgetSec,
+  };
   if (model.reasoningEffort) agentSection.reasoning_effort = model.reasoningEffort;
 
   const generated: ConfigTree = {
@@ -63,6 +67,8 @@ export function buildHermesConfig(
       title_generation: { enabled: false },
     },
     terminal: { cwd: '.' },
+    // `chat` auto-starts a gateway daemon; let it exit promptly once the run is over.
+    gateway: { unmanaged_idle_exit_seconds: 15 },
   };
 
   return config.hermesConfig ? deepMerge(generated, config.hermesConfig) : generated;
@@ -76,6 +82,7 @@ export async function materializeHermesHome(input: {
   home: string;
   config: AgentConfigDefinition;
   maxTurns: number;
+  runBudgetSec: number;
   env: NodeJS.ProcessEnv;
   skillDir: (id: string) => string;
 }): Promise<void> {
@@ -83,7 +90,11 @@ export async function materializeHermesHome(input: {
   await mkdir(join(home, 'memories'), { recursive: true, mode: 0o700 });
   await mkdir(join(home, 'skills'), { recursive: true, mode: 0o700 });
 
-  const hermesConfig = buildHermesConfig(config, { maxTurns: input.maxTurns, env: input.env });
+  const hermesConfig = buildHermesConfig(config, {
+    maxTurns: input.maxTurns,
+    runBudgetSec: input.runBudgetSec,
+    env: input.env,
+  });
   await writeFile(join(home, 'config.yaml'), toYaml(hermesConfig), { mode: 0o600 });
 
   if (!config.skills.bundled) await writeFile(join(home, '.no-bundled-skills'), '');
@@ -115,7 +126,6 @@ export function buildHermesArgs(input: {
   promptFile: string;
   usageFile: string;
   maxTurns: number;
-  runBudgetSec: number;
 }): string[] {
   const { config } = input;
   const args = [
@@ -133,8 +143,6 @@ export function buildHermesArgs(input: {
     '--yolo',
     '--max-turns',
     String(input.maxTurns),
-    '--run-budget',
-    String(input.runBudgetSec),
   ];
   if (config.toolsets.length > 0) args.push('--toolsets', config.toolsets.join(','));
   if (config.skills.preload.length > 0) args.push('--skills', config.skills.preload.join(','));

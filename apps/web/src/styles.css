@@ -1,0 +1,202 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Components use role-named utilities (bg-surface, text-muted, …)
+ * backed by these variables, so light/dark switch in one place.
+ * Series colours follow the validated categorical order (config identity);
+ * the heatmap uses a single-hue sequential ramp; status colours are reserved
+ * and always paired with an icon + label.
+ */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  color-scheme: light;
+  --app-bg: #f6f6f4;
+  --app-surface: #fcfcfb;
+  --app-surface-2: #f0efec;
+  --app-border: #e3e2de;
+  --app-text: #0b0b0b;
+  --app-text-2: #52514e;
+  --app-text-3: #7a7974;
+  --app-accent: #4f46e5;
+  --app-accent-hover: #4338ca;
+  --app-accent-soft: #eef2ff;
+  --app-code-bg: #f3f2ef;
+
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+
+  --status-good: #0ca30c;
+  --status-good-text: #006300;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --status-neutral: #7a7974;
+
+  --seq-0: #f0efec;
+  --seq-1: #cde2fb;
+  --seq-2: #9ec5f4;
+  --seq-3: #6da7ec;
+  --seq-4: #3987e5;
+  --seq-5: #256abf;
+  --seq-6: #184f95;
+  --seq-ink-strong: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+    --app-bg: #121211;
+    --app-surface: #1a1a19;
+    --app-surface-2: #242422;
+    --app-border: #34342f;
+    --app-text: #ffffff;
+    --app-text-2: #c3c2b7;
+    --app-text-3: #8f8e86;
+    --app-accent: #818cf8;
+    --app-accent-hover: #a5b4fc;
+    --app-accent-soft: #23234a;
+    --app-code-bg: #222220;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --status-good-text: #4cc94c;
+    --status-neutral: #8f8e86;
+    --seq-0: #2a2a27;
+    --seq-1: #104281;
+    --seq-2: #184f95;
+    --seq-3: #1c5cab;
+    --seq-4: #2a78d6;
+    --seq-5: #5598e7;
+    --seq-6: #86b6ef;
+    --seq-ink-strong: #0b0b0b;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --app-bg: #121211;
+  --app-surface: #1a1a19;
+  --app-surface-2: #242422;
+  --app-border: #34342f;
+  --app-text: #ffffff;
+  --app-text-2: #c3c2b7;
+  --app-text-3: #8f8e86;
+  --app-accent: #818cf8;
+  --app-accent-hover: #a5b4fc;
+  --app-accent-soft: #23234a;
+  --app-code-bg: #222220;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+  --status-good-text: #4cc94c;
+  --status-neutral: #8f8e86;
+  --seq-0: #2a2a27;
+  --seq-1: #104281;
+  --seq-2: #184f95;
+  --seq-3: #1c5cab;
+  --seq-4: #2a78d6;
+  --seq-5: #5598e7;
+  --seq-6: #86b6ef;
+  --seq-ink-strong: #0b0b0b;
+}
+
+@theme inline {
+  --color-page: var(--app-bg);
+  --color-surface: var(--app-surface);
+  --color-surface-2: var(--app-surface-2);
+  --color-line: var(--app-border);
+  --color-ink: var(--app-text);
+  --color-ink-2: var(--app-text-2);
+  --color-muted: var(--app-text-3);
+  --color-accent: var(--app-accent);
+  --color-accent-hover: var(--app-accent-hover);
+  --color-accent-soft: var(--app-accent-soft);
+  --color-code: var(--app-code-bg);
+  --color-good: var(--status-good);
+  --color-good-ink: var(--status-good-text);
+  --color-warning: var(--status-warning);
+  --color-serious: var(--status-serious);
+  --color-critical: var(--status-critical);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+}
+
+@layer base {
+  html,
+  body {
+    background: var(--app-bg);
+    color: var(--app-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+/* A utility (not a component class) so the button variants below can @apply it. */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@layer components {
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-hover dark:text-[#0b0b0b];
+  }
+  .btn-secondary {
+    @apply btn border border-line bg-surface text-ink hover:bg-surface-2;
+  }
+  .btn-danger {
+    @apply btn border border-line bg-surface text-critical hover:bg-surface-2;
+  }
+  .card {
+    @apply rounded-xl border border-line bg-surface;
+  }
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none;
+  }
+  .label {
+    @apply mb-1 block text-xs font-medium tracking-wide text-ink-2 uppercase;
+  }
+  .table {
+    @apply w-full text-left text-sm;
+  }
+  .table th {
+    @apply border-b border-line px-3 py-2 text-xs font-medium tracking-wide text-muted uppercase;
+  }
+  .table td {
+    @apply border-b border-line px-3 py-2 align-top;
+  }
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .code {
+    @apply rounded-lg bg-code p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words text-ink;
+  }
+}
