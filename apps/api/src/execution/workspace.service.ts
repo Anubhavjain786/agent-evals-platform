@@ -1,5 +1,15 @@
 import { createHash } from 'node:crypto';
-import { cp, mkdir, open, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import {
+  cp,
+  mkdir,
+  open,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { TaskDefinition, WorkspaceFile, WorkspaceFileContent } from '@agent-evals/shared';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
@@ -77,13 +87,17 @@ export class WorkspaceService {
 
   async readFile(runId: string, path: string): Promise<WorkspaceFileContent> {
     const { workspace } = this.dirsFor(runId);
-    const target = this.resolveInside(workspace, path);
+    const requested = this.resolveInside(workspace, path);
+    let target: string;
     let size: number;
     try {
+      // Follow symlinks, then re-check: the agent could have linked to files outside its workspace.
+      target = this.resolveInside(await realpath(workspace), await realpath(requested));
       const info = await stat(target);
       if (!info.isFile()) throw new Error('not a file');
       size = info.size;
-    } catch {
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
       throw new NotFoundException(`File "${path}" not found in run workspace`);
     }
     const handle = await open(target, 'r');

@@ -10,8 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:generate": "drizzle-kit generate",
-    "report": "node dist/cli/report.js"
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@agent-evals/shared": "1.0.0",
