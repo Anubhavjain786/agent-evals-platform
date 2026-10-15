@@ -126,7 +126,7 @@ async function submit() {
 <template>
   <PageHeader
     :title="editId ? 'Edit config' : from ? 'Duplicate config' : 'New config'"
-    subtitle="Change one variable at a time against a baseline config so an experiment can attribute any difference to that change."
+    subtitle="Change only one thing compared with your baseline config. Then, if the results change, you know why."
   >
     <template #eyebrow>
       <RouterLink to="/configs" class="mb-1 inline-block text-xs text-muted hover:text-ink"
@@ -237,7 +237,7 @@ async function submit() {
           />
         </div>
         <div>
-          <label class="label" for="maxTurns">Max turns</label>
+          <label class="label" for="maxTurns">Turn limit</label>
           <input
             id="maxTurns"
             v-model.number="form.maxTurns"
@@ -307,8 +307,9 @@ async function submit() {
           </label>
         </div>
         <p class="text-xs text-muted">
-          Add the <span class="font-mono">skills</span> toolset so the agent can discover and load
-          skills on demand; "preload" puts a skill in the system prompt.
+          Also turn on the <span class="font-mono">skills</span> toolset so the agent can find and
+          open skills when it needs them. "Preload" adds the skill to the agent's instructions from
+          the start.
         </p>
       </section>
 
@@ -318,17 +319,17 @@ async function submit() {
             v-model="form.memoryEnabled"
             type="checkbox"
             class="accent-[var(--app-accent)]"
-          />Persistent memory
+          />Memory
         </label>
         <template v-if="form.memoryEnabled">
           <div>
-            <label class="label" for="notes">Seeded memory notes (one per line)</label>
+            <label class="label" for="notes">Starting memory notes (one per line)</label>
             <textarea
               id="notes"
               v-model="form.memoryNotes"
               rows="4"
               class="input text-xs"
-              placeholder="Facts the agent learned in earlier sessions"
+              placeholder="Facts the agent should remember from earlier conversations"
             />
           </div>
           <div>

@@ -47,12 +47,12 @@ const finite = (v: number) => Number.isFinite(v);
                 width: `calc(${position(row.high)} - ${position(row.low)})`,
                 background: seriesColor(row.colorIndex),
               }"
-              :title="`95% CI ${pct(row.low)} – ${pct(row.high)}`"
+              :title="`95% range ${pct(row.low)} – ${pct(row.high)}`"
             />
             <div
               class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-surface"
               :style="{ left: position(row.value), background: seriesColor(row.colorIndex) }"
-              :title="`${row.label}: ${pct(row.value)} (95% CI ${pct(row.low)} – ${pct(row.high)})`"
+              :title="`${row.label}: ${pct(row.value)} (95% range ${pct(row.low)} – ${pct(row.high)})`"
             />
           </template>
         </div>
@@ -73,8 +73,6 @@ const finite = (v: number) => Number.isFinite(v);
       </div>
       <div />
     </div>
-    <figcaption class="mt-2 text-xs text-muted">
-      Dot = estimate · bar = 95% confidence interval
-    </figcaption>
+    <figcaption class="mt-2 text-xs text-muted">Dot = result · bar = 95% range</figcaption>
   </figure>
 </template>

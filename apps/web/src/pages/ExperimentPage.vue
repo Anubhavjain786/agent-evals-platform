@@ -131,7 +131,7 @@ async function remove() {
             <span
               >{{ experiment.data.value.taskCount }} tasks ×
               {{ experiment.data.value.configs.length }} configs ×
-              {{ experiment.data.value.trials }} trials</span
+              {{ experiment.data.value.trials }} tries</span
             >
             <span>seed {{ experiment.data.value.seed }}</span>
             <span
@@ -140,7 +140,7 @@ async function remove() {
                 dateTime(experiment.data.value.startedAt ?? experiment.data.value.createdAt)
               }}</span
             >
-            <span class="num">spent {{ usd(experiment.data.value.totalCostUsd) }}</span>
+            <span class="num">cost {{ usd(experiment.data.value.totalCostUsd) }}</span>
           </div>
         </template>
         <template #actions>
@@ -218,10 +218,10 @@ async function remove() {
               class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4"
             >
               <div>
-                <dt class="label">Δ pass rate</dt>
+                <dt class="label">Pass rate difference</dt>
                 <dd class="num text-lg font-semibold text-ink">{{ pp(c.passRate.delta) }}</dd>
                 <dd class="num text-xs text-muted">
-                  95% CI {{ pp(c.passRate.ci.low, 0) }} to {{ pp(c.passRate.ci.high, 0) }}
+                  95% range {{ pp(c.passRate.ci.low, 0) }} to {{ pp(c.passRate.ci.high, 0) }}
                 </dd>
               </div>
               <div>
@@ -230,18 +230,20 @@ async function remove() {
                   {{ pValue(c.passRate.pValueAdjusted) }}
                 </dd>
                 <dd class="text-xs text-muted">
-                  Holm-adjusted · raw {{ pValue(c.passRate.pValue) }}
+                  adjusted · before adjusting {{ pValue(c.passRate.pValue) }}
                 </dd>
               </div>
               <div>
-                <dt class="label">Tasks W / L / T</dt>
+                <dt class="label">Tasks won / lost / tied</dt>
                 <dd class="num text-lg font-semibold text-ink">
                   {{ c.wins }} / {{ c.losses }} / {{ c.ties }}
                 </dd>
-                <dd class="text-xs text-muted">by mean score, {{ c.pairedTasks }} paired</dd>
+                <dd class="text-xs text-muted">
+                  by average score, {{ c.pairedTasks }} tasks compared
+                </dd>
               </div>
               <div>
-                <dt class="label">Detectable effect</dt>
+                <dt class="label">Smallest detectable difference</dt>
                 <dd class="num text-lg font-semibold text-ink">
                   {{
                     c.minimumDetectableEffect === null
@@ -249,19 +251,19 @@ async function remove() {
                       : `±${(c.minimumDetectableEffect * 100).toFixed(0)} pp`
                   }}
                 </dd>
-                <dd class="text-xs text-muted">at 80% power</dd>
+                <dd class="text-xs text-muted">what this experiment can reliably notice</dd>
               </div>
               <div>
-                <dt class="label">Δ mean score</dt>
+                <dt class="label">Average score difference</dt>
                 <dd class="num font-medium text-ink">{{ pp(c.meanScore.delta) }}</dd>
                 <dd class="num text-xs text-muted">p {{ pValue(c.meanScore.pValueAdjusted) }}</dd>
               </div>
               <div>
-                <dt class="label">Δ cost / run</dt>
+                <dt class="label">Cost difference per run</dt>
                 <dd class="num font-medium text-ink">{{ signedUsd(c.costDeltaUsd) }}</dd>
               </div>
               <div>
-                <dt class="label">Δ latency / run</dt>
+                <dt class="label">Time difference per run</dt>
                 <dd class="num font-medium text-ink">{{ signedDuration(c.durationDeltaMs) }}</dd>
               </div>
             </dl>
@@ -271,37 +273,31 @@ async function remove() {
         <section class="mb-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           <article class="card p-5">
             <h2 class="mb-4 text-sm font-semibold text-ink">Pass rate by config</h2>
-            <IntervalPlot
-              :rows="passRateRows"
-              summary="Pass rate by configuration with 95% confidence intervals"
-            />
+            <IntervalPlot :rows="passRateRows" summary="Pass rate by config with 95% ranges" />
           </article>
           <article v-if="forestRows.length" class="card p-5">
-            <h2 class="mb-4 text-sm font-semibold text-ink">Difference vs baseline</h2>
+            <h2 class="mb-4 text-sm font-semibold text-ink">Difference from baseline</h2>
             <ForestPlot
               :rows="forestRows"
-              summary="Pass-rate difference versus baseline with 95% confidence intervals"
+              summary="Pass rate difference from the baseline with 95% ranges"
             />
           </article>
           <article class="card p-5">
             <h2 class="mb-4 text-sm font-semibold text-ink">
-              Mean score by config <span class="font-normal text-muted">(partial credit)</span>
+              Average score by config <span class="font-normal text-muted">(partial credit)</span>
             </h2>
-            <IntervalPlot
-              :rows="scoreRows"
-              summary="Mean score by configuration with 95% confidence intervals"
-            />
+            <IntervalPlot :rows="scoreRows" summary="Average score by config with 95% ranges" />
           </article>
           <article class="card overflow-x-auto p-5 lg:col-span-2 xl:col-span-3">
-            <h2 class="mb-3 text-sm font-semibold text-ink">Cost &amp; efficiency</h2>
+            <h2 class="mb-3 text-sm font-semibold text-ink">Cost and speed</h2>
             <table class="table">
               <thead>
                 <tr>
                   <th>Config</th>
-                  <th class="text-right">Scored</th>
+                  <th class="text-right">Checked runs</th>
                   <th class="text-right">Cost / run</th>
                   <th class="text-right">Cost / pass</th>
-                  <th class="text-right">Latency (p95)</th>
+                  <th class="text-right">Time per run (slowest 5%)</th>
                   <th class="text-right">Tokens</th>
                   <th class="text-right">Tool calls</th>
                 </tr>
@@ -334,7 +330,7 @@ async function remove() {
         </section>
 
         <section class="card mb-6 p-5">
-          <h2 class="mb-1 text-sm font-semibold text-ink">Per-task results</h2>
+          <h2 class="mb-1 text-sm font-semibold text-ink">Results per task</h2>
           <p class="mb-4 text-xs text-muted">
             Where the configs differ. Click a cell to inspect its runs.
           </p>
@@ -388,7 +384,7 @@ async function remove() {
               <option value="queued">Queued</option>
               <option value="running">Running</option>
               <option value="completed">Completed</option>
-              <option value="error">Infra error</option>
+              <option value="error">Provider/setup error</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </label>
@@ -406,12 +402,12 @@ async function remove() {
               <tr>
                 <th>Task</th>
                 <th>Config</th>
-                <th class="text-right">Trial</th>
+                <th class="text-right">Try</th>
                 <th>Result</th>
                 <th class="text-right">Score</th>
-                <th class="text-right">Duration</th>
+                <th class="text-right">Time</th>
                 <th class="text-right">Tokens</th>
-                <th class="text-right">Tools</th>
+                <th class="text-right">Tool calls</th>
                 <th class="text-right">Cost</th>
                 <th>Note</th>
               </tr>
@@ -469,7 +465,7 @@ async function remove() {
 
       <details v-if="report.data.value" class="card p-5 text-sm">
         <summary class="cursor-pointer font-semibold text-ink">
-          How these numbers are computed
+          How the numbers are calculated
         </summary>
         <p class="mt-3 leading-relaxed text-ink-2">{{ report.data.value.method }}</p>
         <p class="mt-3 text-xs text-muted">

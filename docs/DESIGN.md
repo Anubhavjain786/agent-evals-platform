@@ -119,7 +119,7 @@ erDiagram
 - **AgentConfig** — the thing we are testing: the model (provider, name,
   address, price), toolsets, skills, memory (on or off, plus starting notes),
   persona, turn limit, and an option to set any other Hermes setting.
-- **Experiment** — tasks × configs × trials. When it starts, it saves a
+- **Experiment** — tasks × configs × tries. When it starts, it saves a
   **frozen copy** of every definition with its hash. If someone edits a suite
   later, old experiments still mean exactly what they meant.
 - **Run** — one task with one config, one time: its status, pass/fail, score,

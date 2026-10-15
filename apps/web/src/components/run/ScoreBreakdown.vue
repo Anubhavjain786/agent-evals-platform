@@ -21,7 +21,7 @@ defineProps<{ scores: ScoreResult[] }>();
                 : 'text-critical'
           "
           :aria-label="
-            score.status === 'error' ? 'Scorer error' : score.passed ? 'Passed' : 'Failed'
+            score.status === 'error' ? 'Check error' : score.passed ? 'Passed' : 'Failed'
           "
         >
           <Icon :name="score.status === 'error' ? 'alert' : score.passed ? 'check' : 'x'" />

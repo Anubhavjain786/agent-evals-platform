@@ -96,7 +96,7 @@ function pretty(output: string): string {
           >
         </template>
         <template v-else-if="step.kind === 'result'"
-          ><Icon name="flag" :size="13" /> Finished (exit {{ step.event.exitCode }})</template
+          ><Icon name="flag" :size="13" /> Finished (exit code {{ step.event.exitCode }})</template
         >
         <template v-else>Session started</template>
       </div>
@@ -110,7 +110,7 @@ function pretty(output: string): string {
           <summary
             class="cursor-pointer px-3 py-2 font-mono text-xs break-all text-ink-2 hover:text-ink"
           >
-            {{ summary(step.call) || 'arguments' }}
+            {{ summary(step.call) || 'details' }}
           </summary>
           <div class="space-y-2 border-t border-line p-3">
             <div>

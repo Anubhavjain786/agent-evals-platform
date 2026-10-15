@@ -1,6 +1,6 @@
 # Video of the working system
 
-- **Automatic walkthrough (no sound, with captions, about 85 seconds):**
+- **Automatic walkthrough (no sound, with captions, about 75 seconds):**
   [`docs/media/demo.mp4`](media/demo.mp4). It was recorded from the real
   running system with the real experiment data, using `npm run demo:record`
   (headless Chrome + ffmpeg), so it can be recorded again at any time.

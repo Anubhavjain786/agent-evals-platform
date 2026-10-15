@@ -11,7 +11,7 @@ const configs = useConfigs();
 <template>
   <PageHeader
     title="Agent configs"
-    subtitle="A config is everything you might change about the agent: model, toolsets, skills, memory, persona and turn budget. Each run gets a fresh, isolated Hermes home built from its config."
+    subtitle="A config is everything you might change about the agent: model, toolsets, skills, memory, persona and turn limit. Each run gets a fresh Hermes setup built from its config."
   >
     <template #actions>
       <RouterLink to="/configs/new" class="btn-primary"

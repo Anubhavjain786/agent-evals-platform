@@ -10,7 +10,7 @@ const segments = computed(() => {
   return [
     { key: 'completed', value: completed, color: 'var(--status-good)', label: 'completed' },
     { key: 'running', value: running, color: 'var(--app-accent)', label: 'running' },
-    { key: 'error', value: error, color: 'var(--status-serious)', label: 'infra errors' },
+    { key: 'error', value: error, color: 'var(--status-serious)', label: 'provider/setup errors' },
     { key: 'cancelled', value: cancelled, color: 'var(--status-neutral)', label: 'cancelled' },
   ]
     .filter((s) => s.value > 0)
@@ -40,7 +40,7 @@ const done = computed(
     <p class="num mt-1 text-xs text-muted">
       {{ done }} / {{ progress.total }} runs
       <template v-if="progress.running"> · {{ progress.running }} running</template>
-      <template v-if="progress.error"> · {{ progress.error }} infra errors</template>
+      <template v-if="progress.error"> · {{ progress.error }} provider/setup errors</template>
       <template v-if="progress.cancelled"> · {{ progress.cancelled }} cancelled</template>
     </p>
   </div>

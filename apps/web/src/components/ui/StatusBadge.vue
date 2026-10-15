@@ -15,7 +15,7 @@ const STYLES: Record<string, { label: string; icon: IconName; tone: string }> = 
   queued: { label: 'Queued', icon: 'clock', tone: 'text-muted' },
   running: { label: 'Running', icon: 'spinner', tone: 'text-accent' },
   completed: { label: 'Completed', icon: 'check', tone: 'text-good-ink' },
-  error: { label: 'Infra error', icon: 'alert', tone: 'text-serious' },
+  error: { label: 'Provider/setup error', icon: 'alert', tone: 'text-serious' },
   cancelled: { label: 'Cancelled', icon: 'ban', tone: 'text-muted' },
 };
 

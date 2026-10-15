@@ -87,7 +87,7 @@ async function onDelete() {
             <p class="text-ink">
               {{ config.data.value.definition.skills.include.join(', ') || 'none' }}
               <span v-if="config.data.value.definition.skills.bundled" class="text-muted"
-                >+ Hermes bundled catalog</span
+                >+ Hermes built-in skills</span
               >
             </p>
           </div>
@@ -104,10 +104,8 @@ async function onDelete() {
             </ul>
           </div>
           <div>
-            <p class="label">Turn budget</p>
-            <p class="text-ink">
-              {{ config.data.value.definition.maxTurns }} tool-calling iterations
-            </p>
+            <p class="label">Turn limit</p>
+            <p class="text-ink">{{ config.data.value.definition.maxTurns }} turns</p>
           </div>
         </section>
         <section class="card p-5">

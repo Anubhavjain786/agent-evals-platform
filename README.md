@@ -71,7 +71,7 @@ Open <http://localhost:3000>. The top bar shows the Hermes version it found.
 2. Pick the **Core agent tasks** suite.
 3. Select `gpt-oss 20B` first, then `gpt-oss 120B`. The first one you pick is
    the **baseline** (the one the others are compared against).
-4. Keep 3 trials and click **Start**.
+4. Keep **Tries per task** at 3 and click **Start experiment**.
 
 Progress updates live. The result, the charts and the per-task table fill in
 as runs finish. Click any cell or any run to see its details.
@@ -117,7 +117,7 @@ docs/                 design, limits, costs, experiment results
    be reviewed like code. On startup they are copied into the database. Each
    version gets a short hash, so you always know which version was used. You
    can also create suites and configs in the UI.
-2. **An experiment = tasks × configs × trials.** When you start one, the
+2. **An experiment = tasks × configs × tries.** When you start one, the
    platform saves a frozen copy of every task and config. Then it plans all
    runs in a random (but repeatable) order. This way, if the model provider
    gets slow for a while, it affects all configs equally.

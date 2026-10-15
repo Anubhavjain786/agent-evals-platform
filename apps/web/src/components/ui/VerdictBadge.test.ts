@@ -15,7 +15,7 @@ describe('badges never rely on colour alone', () => {
     expect(mount(StatusBadge, { props: { status: 'completed', outcome: 'fail' } }).text()).toBe(
       'Fail',
     );
-    expect(mount(StatusBadge, { props: { status: 'error' } }).text()).toBe('Infra error');
+    expect(mount(StatusBadge, { props: { status: 'error' } }).text()).toBe('Provider/setup error');
     expect(
       mount(StatusBadge, { props: { status: 'running' } })
         .find('svg')

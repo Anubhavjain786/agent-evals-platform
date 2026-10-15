@@ -90,7 +90,8 @@ async function onDelete() {
               <CodeBlock :value="task.prompt" max-height="16rem" />
               <p class="mt-2 text-xs text-muted">
                 <template v-if="task.fixtures"
-                  >Workspace: <span class="font-mono">evals/fixtures/{{ task.fixtures }}</span> ·
+                  >Starting files:
+                  <span class="font-mono">evals/fixtures/{{ task.fixtures }}</span> ·
                 </template>
                 Timeout {{ task.limits.timeoutSec }}s<template v-if="task.limits.maxTurns">
                   · max {{ task.limits.maxTurns }} turns</template

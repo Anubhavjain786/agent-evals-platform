@@ -56,7 +56,7 @@ async function submit() {
 <template>
   <PageHeader
     title="New suite"
-    subtitle="Define tasks and their checks in YAML. Scorer types: contains, exact_match, regex, numeric, json_field, file_exists, command, tool_usage, llm_judge. Fixture directories must exist under evals/fixtures."
+    subtitle="Write tasks and their checks in YAML. Check types: contains, exact_match, regex, numeric, json_field, file_exists, command, tool_usage, llm_judge. Folders with starting files must already exist in evals/fixtures."
   >
     <template #eyebrow>
       <RouterLink to="/suites" class="mb-1 inline-block text-xs text-muted hover:text-ink"

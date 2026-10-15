@@ -25,7 +25,7 @@ const headline = computed(() => {
   const r = run.data.value;
   if (!r) return null;
   if (r.status === 'error')
-    return `Infrastructure error (${r.errorKind}): ${r.errorMessage ?? 'unknown'}`;
+    return `Provider or setup error (${r.errorKind}): ${r.errorMessage ?? 'unknown'}`;
   if (r.status !== 'completed') return null;
   const failing = r.scores.filter((s) => !s.passed);
   if (failing.length === 0) return `All ${r.scores.length} checks passed.`;
@@ -56,7 +56,7 @@ const headline = computed(() => {
                 >{{ run.data.value.config.name }}</RouterLink
               >
             </span>
-            <span>trial {{ run.data.value.trial }}</span>
+            <span>try {{ run.data.value.trial }}</span>
             <span v-if="run.data.value.attempt > 1">attempt {{ run.data.value.attempt }}</span>
             <span>{{ dateTime(run.data.value.startedAt) }}</span>
             <span v-if="run.data.value.sessionId" class="font-mono"
@@ -103,7 +103,7 @@ const headline = computed(() => {
           <dd class="num text-lg font-semibold text-ink">{{ pct(run.data.value.score, 0) }}</dd>
         </div>
         <div>
-          <dt class="label">Duration</dt>
+          <dt class="label">Time</dt>
           <dd class="num text-lg font-semibold text-ink">
             {{ duration(run.data.value.durationMs) }}
           </dd>
@@ -130,13 +130,13 @@ const headline = computed(() => {
           <dd v-if="run.data.value.usage" class="text-xs text-muted">
             {{
               run.data.value.usage.costSource === 'pricing_table'
-                ? 'list-price estimate'
+                ? 'estimate at list prices'
                 : run.data.value.usage.costSource
             }}
           </dd>
         </div>
         <div>
-          <dt class="label">Exit</dt>
+          <dt class="label">Why it stopped</dt>
           <dd class="text-sm font-medium break-words text-ink">
             {{ run.data.value.turnExitReason ?? run.data.value.errorKind ?? '—' }}
           </dd>
@@ -148,7 +148,7 @@ const headline = computed(() => {
           <section class="card p-5">
             <h2 class="mb-3 text-sm font-semibold text-ink">Checks</h2>
             <ScoreBreakdown v-if="run.data.value.scores.length" :scores="run.data.value.scores" />
-            <p v-else class="text-sm text-muted">Not scored yet.</p>
+            <p v-else class="text-sm text-muted">Not checked yet.</p>
           </section>
           <section class="card p-5">
             <h2 class="mb-3 text-sm font-semibold text-ink">Final answer</h2>
@@ -159,7 +159,7 @@ const headline = computed(() => {
             <h2 class="mb-3 text-sm font-semibold text-ink">Task</h2>
             <CodeBlock :value="run.data.value.task.prompt" max-height="14rem" />
             <p v-if="run.data.value.task.fixtures" class="mt-2 text-xs text-muted">
-              Workspace seeded from
+              Starting files from
               <span class="font-mono">evals/fixtures/{{ run.data.value.task.fixtures }}</span>
             </p>
           </section>
@@ -168,36 +168,31 @@ const headline = computed(() => {
         <div class="space-y-6">
           <section class="card p-5">
             <h2 class="mb-4 text-sm font-semibold text-ink">
-              Trajectory
-              <span class="font-normal text-muted"
-                >({{ run.data.value.events.length }} events)</span
-              >
+              Steps <span class="font-normal text-muted">({{ run.data.value.events.length }})</span>
             </h2>
             <TrajectoryTimeline
               v-if="run.data.value.events.length || live"
               :events="run.data.value.events"
               :live="live"
             />
-            <p v-else class="text-sm text-muted">No trajectory recorded.</p>
+            <p v-else class="text-sm text-muted">No steps recorded.</p>
           </section>
           <section class="card p-5">
-            <h2 class="mb-3 text-sm font-semibold text-ink">Workspace after the run</h2>
+            <h2 class="mb-3 text-sm font-semibold text-ink">Files after the run</h2>
             <WorkspaceFiles :run-id="run.data.value.id" :files="run.data.value.files" />
           </section>
         </div>
       </div>
 
       <details class="card mt-6 p-5 text-sm">
-        <summary class="cursor-pointer font-semibold text-ink">
-          Config snapshot &amp; harness log
-        </summary>
+        <summary class="cursor-pointer font-semibold text-ink">Config used and Hermes log</summary>
         <div class="mt-3 grid gap-4 lg:grid-cols-2">
           <div>
             <p class="label">Agent config (as run)</p>
             <CodeBlock :value="run.data.value.config" />
           </div>
           <div>
-            <p class="label">Hermes stderr (tail)</p>
+            <p class="label">Hermes log (last lines)</p>
             <CodeBlock :value="run.data.value.logTail || '(empty)'" />
           </div>
         </div>

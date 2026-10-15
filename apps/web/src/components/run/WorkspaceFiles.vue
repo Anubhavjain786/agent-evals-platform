@@ -12,7 +12,7 @@ const file = useRunFile(() => props.runId, selected);
 </script>
 
 <template>
-  <div v-if="files.length === 0" class="text-sm text-muted">The workspace was empty.</div>
+  <div v-if="files.length === 0" class="text-sm text-muted">The run folder was empty.</div>
   <div v-else class="grid gap-4 lg:grid-cols-[16rem_1fr]">
     <ul class="max-h-96 space-y-0.5 overflow-auto text-sm">
       <li v-for="f in files" :key="f.path">

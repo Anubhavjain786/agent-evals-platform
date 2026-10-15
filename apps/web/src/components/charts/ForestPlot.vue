@@ -67,7 +67,7 @@ const ticks = computed(() => [-extent.value, 0, extent.value]);
             <div
               class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rotate-45 ring-2 ring-surface"
               :style="{ left: position(row.delta), background: seriesColor(row.colorIndex) }"
-              :title="`${row.label}: ${pp(row.delta)} (95% CI ${pp(row.low)} to ${pp(row.high)})`"
+              :title="`${row.label}: ${pp(row.delta)} (95% range ${pp(row.low)} to ${pp(row.high)})`"
             />
           </template>
         </div>
@@ -91,8 +91,8 @@ const ticks = computed(() => [-extent.value, 0, extent.value]);
       <div />
     </div>
     <figcaption class="mt-2 text-xs text-muted">
-      Pass-rate difference vs baseline in percentage points · whiskers = 95% CI · line = no
-      difference
+      Pass rate difference from the baseline, in percentage points (pp) · whiskers = 95% range ·
+      vertical line = no difference
     </figcaption>
   </figure>
 </template>

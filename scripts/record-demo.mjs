@@ -118,7 +118,7 @@ await caption(
   'Agent Evals — is a Hermes Agent change better, worse, or the same? And how sure are we?',
 );
 await pause(3500);
-await caption('Experiments compare agent configurations on a task suite, several trials each');
+await caption('An experiment compares agent configs on a task suite, with several tries each');
 await pause(3000);
 
 await page.getByText(experiment.name).first().click();
@@ -126,58 +126,56 @@ await page.getByText('Pass rate by config').waitFor();
 await pause(800);
 await shot('experiment');
 await caption(
-  'The verdict: effect size, 95% interval, Holm-adjusted p-value, and the detectable effect',
+  'The result: the difference, its 95% range, the p-value, and the smallest difference it could notice',
 );
 await pause(5500);
 
 await scrollTo('Pass rate by config');
 await shot('charts');
-await caption(
-  'Two-level bootstrap intervals per config, and the paired difference vs the baseline',
-);
+await caption('Pass rate per config with its 95% range, and the difference from the baseline');
 await pause(5000);
 
-await scrollTo('Cost & efficiency');
-await caption('Cost and latency per run and per passed task, from real token usage');
+await scrollTo('Cost and speed');
+await caption('Cost and time per run and per passed task, from real token usage');
 await pause(3500);
 
-await scrollTo('Per-task results');
+await scrollTo('Results per task');
 await shot('task-matrix');
-await caption('Where the difference comes from: pass counts per task and config (⚠ = flaky)');
+await caption('Where the difference comes from: passed runs per task and config (⚠ = flaky)');
 await pause(4500);
 
 if (failedRun) {
   await go(`/runs/${failedRun.id}`);
-  await page.getByText('Trajectory').waitFor();
+  await page.getByRole('heading', { name: /^Steps/ }).waitFor();
   await shot('run');
   await caption('Why did this run fail? The failing check, with its evidence…');
   await pause(4500);
-  await scrollTo('Trajectory', 120);
-  await caption('…the full trajectory: every tool call with its arguments, output and timing…');
+  await scrollTo('Steps', 120);
+  await caption('…every step: each tool call with its input, output and time…');
   const firstTool = page.locator('details summary').first();
   if (await firstTool.count()) await firstTool.click().catch(() => undefined);
   await pause(4500);
-  await scrollTo('Workspace after the run', 120);
+  await scrollTo('Files after the run', 120);
   await caption('…and the files the agent created or edited');
   await pause(3500);
 }
 
 await go(
   '/suites/core',
-  'Tasks are YAML in the repo: a prompt, a workspace fixture and the checks that grade it',
+  'Tasks are YAML files in the repo: a prompt, starting files and the checks',
 );
 await page.getByText('Fix the pricing bug').first().click();
 await pause(4500);
 
 await go(
   '/configs/gpt-oss-120b-memory-skills',
-  'A config is the variable under test: model, toolsets, skills, memory, persona',
+  'A config is what we are testing: model, tools, skills, memory, persona',
 );
 await pause(4500);
 
 await go(
   '/experiments/new',
-  'Launching an experiment: pick a suite, the configs to compare, and the trials',
+  'Starting an experiment: pick a suite, the configs to compare, and the number of tries',
 );
 await page.getByText('gpt-oss 20B · file+terminal').first().click();
 await page.getByText('gpt-oss 120B · file+terminal').first().click();
@@ -185,7 +183,7 @@ await pause(4000);
 
 await go(
   `/experiments/${experiment.id}`,
-  'Light and dark themes, live updates over server-sent events',
+  'Light and dark themes, and live updates while runs finish',
 );
 await page.getByRole('button', { name: /Switch to dark theme/ }).click();
 await pause(3500);

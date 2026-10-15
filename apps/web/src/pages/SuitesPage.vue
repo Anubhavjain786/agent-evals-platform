@@ -12,7 +12,7 @@ const suites = useSuites();
 <template>
   <PageHeader
     title="Task suites"
-    subtitle="A suite is a set of tasks, each with a prompt, an optional workspace and the checks that decide pass or fail. Suites in evals/suites are synced from files on startup; you can also add one here."
+    subtitle="A suite is a set of tasks. Each task has a prompt, optional starting files, and the checks that decide pass or fail. Suites in evals/suites are loaded from files on startup; you can also add one here."
   >
     <template #actions>
       <RouterLink to="/suites/new" class="btn-primary"

@@ -44,7 +44,7 @@ function delta(row: TaskRow): number | null {
           <th v-for="(config, index) in configs" :key="config.id" class="text-center">
             <SeriesDot :index="index" :label="config.name" class="justify-center normal-case" />
           </th>
-          <th v-if="candidateId" class="text-right">Δ pass rate</th>
+          <th v-if="candidateId" class="text-right">Pass rate difference</th>
         </tr>
       </thead>
       <tbody>
@@ -55,7 +55,7 @@ function delta(row: TaskRow): number | null {
               <span
                 v-if="row.flaky"
                 class="inline-flex items-center gap-0.5 text-[11px] font-medium text-serious"
-                title="Passed on some trials and failed on others"
+                title="Passed on some tries and failed on others"
               >
                 <Icon name="alert" :size="12" />flaky
               </span>
@@ -84,7 +84,7 @@ function delta(row: TaskRow): number | null {
               :style="{
                 background: cell.runs ? sequentialFill(cell.passRate) : 'var(--app-surface-2)',
               }"
-              :title="`${row.taskName} · ${pct(cell.passRate)} pass (${cell.passes}/${cell.runs})${cell.errors ? ` · ${cell.errors} infra errors` : ''}`"
+              :title="`${row.taskName} · ${pct(cell.passRate)} pass (${cell.passes}/${cell.runs})${cell.errors ? ` · ${cell.errors} provider/setup errors` : ''}`"
               @click="emit('select', { taskId: row.taskId, configId: cell.configId })"
             >
               <template v-if="cell.runs">{{ cell.passes }}/{{ cell.runs }}</template>
@@ -118,7 +118,7 @@ function delta(row: TaskRow): number | null {
         />
       </span>
       <span class="num">100%</span>
-      <span class="ml-2">Cells show passes / scored runs.</span>
+      <span class="ml-2">Each cell shows passed runs / checked runs.</span>
     </div>
   </div>
 </template>

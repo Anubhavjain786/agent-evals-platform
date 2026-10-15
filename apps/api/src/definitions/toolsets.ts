@@ -6,16 +6,16 @@ import type { CatalogToolset } from '@agent-evals/shared';
  * omitted; any other toolset id is still accepted in a config definition.
  */
 export const EVAL_TOOLSETS: CatalogToolset[] = [
-  { id: 'file', description: 'read_file, write_file, patch, search_files' },
-  { id: 'terminal', description: 'Shell commands and background processes' },
-  { id: 'code_execution', description: 'Python scripts that call Hermes tools programmatically' },
-  { id: 'memory', description: 'Persistent cross-session memory (needs memory enabled)' },
-  { id: 'skills', description: 'skills_list, skill_view, skill_manage' },
-  { id: 'todo', description: 'In-session task list' },
-  { id: 'session_search', description: 'Search past sessions' },
-  { id: 'web', description: 'web_search and web_extract (needs a search backend + network)' },
-  { id: 'search', description: 'web_search only' },
-  { id: 'browser', description: 'Headless browser automation (heavy; needs network)' },
-  { id: 'vision', description: 'Image analysis with a vision-capable model' },
-  { id: 'delegation', description: 'Spawn subagents' },
+  { id: 'file', description: 'Read, write, edit and search files' },
+  { id: 'terminal', description: 'Run shell commands' },
+  { id: 'code_execution', description: 'Run Python scripts that use Hermes tools' },
+  { id: 'memory', description: 'Remember facts across conversations (turn memory on too)' },
+  { id: 'skills', description: 'Find and open skills' },
+  { id: 'todo', description: 'Keep a to-do list during the task' },
+  { id: 'session_search', description: 'Search past conversations' },
+  { id: 'web', description: 'Search the web and read pages (needs network and a search service)' },
+  { id: 'search', description: 'Search the web only' },
+  { id: 'browser', description: 'Control a web browser (heavy; needs network)' },
+  { id: 'vision', description: 'Look at images (needs a model that can see images)' },
+  { id: 'delegation', description: 'Start helper agents' },
 ];

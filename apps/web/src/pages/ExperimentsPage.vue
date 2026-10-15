@@ -15,7 +15,7 @@ const experiments = useExperiments();
 <template>
   <PageHeader
     title="Experiments"
-    subtitle="Each experiment runs every task of a suite under two or more agent configurations, several times, and tells you which configuration is better — and how sure you can be."
+    subtitle="An experiment runs every task in a suite with two or more agent configs, several times each. It tells you which config is better, and how sure you can be."
   >
     <template #actions>
       <RouterLink to="/experiments/new" class="btn-primary"
@@ -54,7 +54,7 @@ const experiments = useExperiments();
                 >{{ e.name }}</RouterLink
               >
               <p class="text-xs text-muted">
-                {{ e.suite.name }} · {{ e.taskCount }} tasks × {{ e.trials }} trials
+                {{ e.suite.name }} · {{ e.taskCount }} tasks × {{ e.trials }} tries
               </p>
             </td>
             <td>

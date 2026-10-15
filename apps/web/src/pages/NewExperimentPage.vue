@@ -95,7 +95,7 @@ async function submit() {
 <template>
   <PageHeader
     title="New experiment"
-    subtitle="Pick a task suite and the configurations to compare. Every task runs under every config, several times; runs are interleaved in random order so provider hiccups hit all configs alike."
+    subtitle="Pick a task suite and the configs to compare. Every task runs with every config, several times. Runs are done in a mixed order, so if the provider gets slow it affects all configs equally."
   >
     <template #eyebrow>
       <RouterLink to="/experiments" class="mb-1 inline-block text-xs text-muted hover:text-ink"
@@ -242,7 +242,7 @@ async function submit() {
     <aside class="space-y-4">
       <section class="card space-y-4 p-5">
         <div>
-          <label class="label" for="trials">Trials per task</label>
+          <label class="label" for="trials">Tries per task</label>
           <input
             id="trials"
             v-model.number="form.trials"
@@ -252,11 +252,11 @@ async function submit() {
             class="input"
           />
           <p class="mt-1 text-xs text-muted">
-            Agents are stochastic. 3+ trials separate luck from skill.
+            Agents give different answers each time. 3 or more tries help separate luck from skill.
           </p>
         </div>
         <div>
-          <label class="label" for="concurrency">Concurrency</label>
+          <label class="label" for="concurrency">Runs at the same time</label>
           <input
             id="concurrency"
             v-model.number="form.concurrency"
@@ -279,14 +279,14 @@ async function submit() {
             class="input"
             placeholder="random"
           />
-          <p class="mt-1 text-xs text-muted">Fixes run order and the statistics' resampling.</p>
+          <p class="mt-1 text-xs text-muted">Makes the run order and the statistics repeatable.</p>
         </div>
       </section>
       <section class="card p-5">
         <p class="num text-3xl font-semibold text-ink">{{ totalRuns }}</p>
         <p class="text-sm text-ink-2">
           runs = {{ taskCount }} tasks × {{ form.configIds.length }} configs ×
-          {{ form.trials || 0 }} trials
+          {{ form.trials || 0 }} tries
         </p>
         <p v-if="form.configIds.length === 1" class="mt-3 text-xs text-muted">
           With a single config you get its pass rate and intervals, but no comparison.
