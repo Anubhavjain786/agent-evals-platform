@@ -19,6 +19,15 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    files: ['**/*.mjs', '**/*.cjs'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    // Functions passed to page.evaluate() run in the browser.
+    files: ['scripts/record-demo.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
+  {
     files: ['**/*.ts'],
     languageOptions: { globals: globals.node },
     rules: {

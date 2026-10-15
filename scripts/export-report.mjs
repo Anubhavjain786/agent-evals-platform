@@ -37,7 +37,6 @@ const [experiment, report, runs] = await Promise.all([
   get(`/experiments/${experimentId}/report`),
   get(`/experiments/${experimentId}/runs`),
 ]);
-const name = (id) => experiment.configs.find((c) => c.id === id)?.name ?? id;
 const definition = (id) => experiment.snapshot.configs.find((c) => c.id === id);
 
 const lines = [
