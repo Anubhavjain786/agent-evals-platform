@@ -14,14 +14,21 @@ have detected. Every run can be opened to see exactly why it passed or failed.
 **Stack:** NestJS 11 · Vue 3 · TypeScript throughout · SQLite (Drizzle) · Hermes
 Agent v0.22.1 · Docker
 
-| Deliverable                                                | Where                                      |
-| ---------------------------------------------------------- | ------------------------------------------ |
-| Source code + README                                       | this repository                            |
-| Design document (architecture, key decisions, assumptions) | [docs/DESIGN.md](docs/DESIGN.md)           |
-| Known limits                                               | [docs/LIMITATIONS.md](docs/LIMITATIONS.md) |
-| Approximate costs                                          | [docs/COSTS.md](docs/COSTS.md)             |
-| Results of a real experiment                               | [docs/experiments/](docs/experiments/)     |
-| Video of the working system                                | see [docs/VIDEO.md](docs/VIDEO.md)         |
+| Deliverable                                                | Where                                                                                           |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Source code + README                                       | this repository                                                                                 |
+| Design document (architecture, key decisions, assumptions) | [docs/DESIGN.md](docs/DESIGN.md)                                                                |
+| Known limits                                               | [docs/LIMITATIONS.md](docs/LIMITATIONS.md)                                                      |
+| Approximate costs                                          | [docs/COSTS.md](docs/COSTS.md)                                                                  |
+| Results of a real experiment comparing two configurations  | [docs/experiments/ANALYSIS.md](docs/experiments/ANALYSIS.md) (+ generated reports and raw JSON) |
+| Video of the working system                                | see [docs/VIDEO.md](docs/VIDEO.md)                                                              |
+
+![Experiment verdict: memory and skills on vs off](docs/media/experiment.png)
+
+<p align="center">
+  <img src="docs/media/charts.png" width="49%" alt="Interval plots, forest plot and per-task heatmap" />
+  <img src="docs/media/run.png" width="49%" alt="Run inspector: checks, trajectory and workspace" />
+</p>
 
 ---
 

@@ -2,8 +2,9 @@
 /**
  * Records a captioned walkthrough of the running platform as an MP4.
  *
- *   node scripts/record-demo.mjs [--url http://localhost:3000] [--out docs/media/demo.mp4]
+ *   node scripts/record-demo.mjs [--url http://localhost:3000] [--out docs/media/demo.mp4] [--experiment <id>]
  *
+ * Key screens are also saved as PNG screenshots next to the video.
  * Uses the locally installed Google Chrome (playwright-core, no browser
  * download) and the Chrome DevTools screencast; ffmpeg assembles the frames
  * with their real timing. The walkthrough opens the most recent completed
@@ -24,8 +25,10 @@ const OUT = arg('--out', 'docs/media/demo.mp4');
 const VIEWPORT = { width: 1440, height: 900 };
 
 const experiments = await (await fetch(`${BASE}/api/experiments`)).json();
-const experiment =
-  experiments.find((e) => e.status === 'completed' && e.trials > 1) ?? experiments[0];
+const requested = arg('--experiment', null);
+const experiment = requested
+  ? experiments.find((e) => e.id === requested)
+  : (experiments.find((e) => e.status === 'completed' && e.trials > 1) ?? experiments[0]);
 if (!experiment) throw new Error('No experiment found — run one first.');
 const runs = await (
   await fetch(`${BASE}/api/experiments/${experiment.id}/runs?outcome=fail`)
@@ -44,6 +47,12 @@ cdp.on('Page.screencastFrame', async ({ data, metadata, sessionId }) => {
 });
 
 const pause = (ms) => page.waitForTimeout(ms);
+
+async function shot(name) {
+  await page.evaluate(() => document.getElementById('demo-caption')?.remove());
+  await mkdir(dirname(OUT), { recursive: true });
+  await page.screenshot({ path: join(dirname(OUT), `${name}.png`) });
+}
 
 async function caption(text) {
   await page.evaluate((value) => {
@@ -113,13 +122,16 @@ await caption('Experiments compare agent configurations on a task suite, several
 await pause(3000);
 
 await page.getByText(experiment.name).first().click();
-await page.waitForLoadState('networkidle');
+await page.getByText('Pass rate by config').waitFor();
+await pause(800);
+await shot('experiment');
 await caption(
   'The verdict: effect size, 95% interval, Holm-adjusted p-value, and the detectable effect',
 );
 await pause(5500);
 
 await scrollTo('Pass rate by config');
+await shot('charts');
 await caption(
   'Two-level bootstrap intervals per config, and the paired difference vs the baseline',
 );
@@ -130,11 +142,15 @@ await caption('Cost and latency per run and per passed task, from real token usa
 await pause(3500);
 
 await scrollTo('Per-task results');
+await shot('task-matrix');
 await caption('Where the difference comes from: pass counts per task and config (⚠ = flaky)');
 await pause(4500);
 
 if (failedRun) {
-  await go(`/runs/${failedRun.id}`, 'Why did this run fail? The failing check, with its evidence…');
+  await go(`/runs/${failedRun.id}`);
+  await page.getByText('Trajectory').waitFor();
+  await shot('run');
+  await caption('Why did this run fail? The failing check, with its evidence…');
   await pause(4500);
   await scrollTo('Trajectory', 120);
   await caption('…the full trajectory: every tool call with its arguments, output and timing…');

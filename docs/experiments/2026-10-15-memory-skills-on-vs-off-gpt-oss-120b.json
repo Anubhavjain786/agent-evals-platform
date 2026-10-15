@@ -1,0 +1,2273 @@
+{
+  "experiment": {
+    "id": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+    "name": "Memory & skills on vs off (gpt-oss 120B)",
+    "description": "Hypothesis: enabling Hermes persistent memory (seeded with facts from earlier sessions) and the team skills improves the tasks that depend on them, without regressing the control tasks. The model and every other setting are held constant.",
+    "suite": {
+      "id": "harness",
+      "name": "Memory & skills tasks",
+      "version": "be14b9f932d1"
+    },
+    "configs": [
+      {
+        "id": "gpt-oss-120b",
+        "name": "gpt-oss 120B · file+terminal",
+        "version": "3146acb320ae"
+      },
+      {
+        "id": "gpt-oss-120b-memory-skills",
+        "name": "gpt-oss 120B · +memory +skills",
+        "version": "6bc777b1b466"
+      }
+    ],
+    "baselineConfigId": "gpt-oss-120b",
+    "status": "completed",
+    "trials": 3,
+    "taskCount": 11,
+    "concurrency": 4,
+    "seed": 2026,
+    "progress": {
+      "total": 66,
+      "queued": 0,
+      "running": 0,
+      "completed": 66,
+      "error": 0,
+      "cancelled": 0
+    },
+    "totalCostUsd": 0.1520001,
+    "createdAt": "2026-10-15T07:35:02.208Z",
+    "startedAt": "2026-10-15T07:35:02.235Z",
+    "finishedAt": "2026-10-15T08:03:49.174Z",
+    "snapshot": {
+      "suite": {
+        "id": "harness",
+        "name": "Memory & skills tasks",
+        "description": "Five tasks that depend on facts from earlier sessions (persistent memory), four that depend on team procedures packaged as skills, and two control tasks that should not change when memory or skills are turned on.",
+        "tasks": [
+          {
+            "id": "memory-house-style-notice",
+            "name": "Customer notice in house style",
+            "tags": [
+              "memory",
+              "writing"
+            ],
+            "prompt": "Write a short notice (3–5 sentences) to customers about a two-day shipping\ndelay caused by a carrier strike, and save it to notice.md. Follow my\nusual house style for customer notices.\n",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "id": "notice-exists",
+                  "weight": 1,
+                  "required": true,
+                  "type": "file_exists",
+                  "path": "notice.md",
+                  "shouldExist": true
+                },
+                {
+                  "id": "greeting-and-signoff",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:notice.md",
+                  "values": [
+                    "Hi there,",
+                    "— The Acme Support Team"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": true,
+                  "negate": false
+                },
+                {
+                  "id": "support-email",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:notice.md",
+                  "values": [
+                    "help@acme.example"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": false,
+                  "negate": false
+                },
+                {
+                  "id": "no-exclamation-marks",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:notice.md",
+                  "values": [
+                    "!"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": false,
+                  "negate": true
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "memory-staging-database-url",
+            "name": "Staging database URL from project context",
+            "tags": [
+              "memory",
+              "tools"
+            ],
+            "prompt": "Create a .env.staging file containing a single DATABASE_URL line for our\nstaging Postgres database: database `orders`, user `svc_orders`, and the\npassword taken from the shell variable at runtime, written literally as\n${DB_PASSWORD}.\n",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "id": "file-exists",
+                  "weight": 1,
+                  "required": true,
+                  "type": "file_exists",
+                  "path": ".env.staging",
+                  "shouldExist": true
+                },
+                {
+                  "id": "url",
+                  "weight": 1,
+                  "required": false,
+                  "type": "regex",
+                  "target": "file:.env.staging",
+                  "pattern": "^DATABASE_URL=[\"']?postgres(ql)?://svc_orders:\\$\\{DB_PASSWORD\\}@db-staging\\.internal\\.acme\\.example:6543/orders[\"']?\\s*$",
+                  "flags": "m"
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "memory-preferred-units",
+            "name": "Answer in the user's preferred units",
+            "tags": [
+              "memory",
+              "reasoning"
+            ],
+            "prompt": "I'm driving 150 miles to the Leeds warehouse at an average of 50 mph,\nleaving at 1:45 PM. How far is it and what time will I arrive? One line,\nin the units and time format I prefer.\n",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "id": "kilometres",
+                  "weight": 1,
+                  "required": false,
+                  "type": "regex",
+                  "target": "final_answer",
+                  "pattern": "\\b24[01](\\.\\d+)?\\s?(km|kilomet)",
+                  "flags": "i"
+                },
+                {
+                  "id": "twenty-four-hour-time",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "final_answer",
+                  "values": [
+                    "16:45"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": false,
+                  "negate": false
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 180,
+              "maxTurns": 5
+            }
+          },
+          {
+            "id": "memory-commit-convention",
+            "name": "Commit message following the team convention",
+            "tags": [
+              "memory",
+              "coding"
+            ],
+            "prompt": "Write the commit message for the change in change.diff to COMMIT_MSG.txt,\nfollowing this repository's commit message conventions. Subject line only.\n",
+            "fixtures": "commit-message",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "id": "file-exists",
+                  "weight": 1,
+                  "required": true,
+                  "type": "file_exists",
+                  "path": "COMMIT_MSG.txt",
+                  "shouldExist": true
+                },
+                {
+                  "id": "convention",
+                  "weight": 1,
+                  "required": false,
+                  "type": "regex",
+                  "target": "file:COMMIT_MSG.txt",
+                  "pattern": "^\\[OPS-4821\\] (feat|fix|chore|refactor|docs|test|perf)(\\([a-z0-9-]+\\))?: \\S.+",
+                  "flags": ""
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "memory-production-region",
+            "name": "Terraform provider for the production region",
+            "tags": [
+              "memory",
+              "coding"
+            ],
+            "prompt": "Write provider.tf with the AWS provider block for our production account.\nCredentials come from the environment, so do not include any.\n",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "id": "file-exists",
+                  "weight": 1,
+                  "required": true,
+                  "type": "file_exists",
+                  "path": "provider.tf",
+                  "shouldExist": true
+                },
+                {
+                  "id": "region",
+                  "weight": 1,
+                  "required": false,
+                  "type": "regex",
+                  "target": "file:provider.tf",
+                  "pattern": "region\\s*=\\s*\"eu-central-1\"",
+                  "flags": ""
+                },
+                {
+                  "id": "not-legacy-region",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:provider.tf",
+                  "values": [
+                    "us-east-1"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": false,
+                  "negate": true
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "skill-validate-invoice-ids",
+            "name": "Validate ACME invoice IDs",
+            "tags": [
+              "skills",
+              "data"
+            ],
+            "prompt": "invoices.txt lists invoice IDs, one per line. Write the IDs that are valid\nACME invoice IDs to valid.txt, one per line. Use our ACME invoice ID rules.\n",
+            "fixtures": "invoice-ids",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "weight": 1,
+                  "required": false,
+                  "type": "command",
+                  "run": "python3 check_valid.py",
+                  "expectExitCode": 0,
+                  "timeoutSec": 60,
+                  "hiddenFixtures": "invoice-ids-hidden"
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "skill-release-notes",
+            "name": "Release notes in house format",
+            "tags": [
+              "skills",
+              "writing"
+            ],
+            "prompt": "Write customer-facing release notes for v2.4.0 into RELEASE_NOTES.md from\nthe merged PRs in CHANGELOG-raw.txt, using our release notes format.\n",
+            "fixtures": "release-notes",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "id": "notes-exist",
+                  "weight": 1,
+                  "required": true,
+                  "type": "file_exists",
+                  "path": "RELEASE_NOTES.md",
+                  "shouldExist": true
+                },
+                {
+                  "id": "sections",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:RELEASE_NOTES.md",
+                  "values": [
+                    "# Release v2.4.0",
+                    "## ⚠️ Breaking changes",
+                    "## ✨ Highlights",
+                    "## 🐛 Fixes"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": true,
+                  "negate": false
+                },
+                {
+                  "id": "pr-references",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:RELEASE_NOTES.md",
+                  "values": [
+                    "(#412)",
+                    "(#415)",
+                    "(#420)",
+                    "(#421)",
+                    "(#425)",
+                    "(#427)",
+                    "(#430)"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": false,
+                  "negate": false
+                },
+                {
+                  "id": "no-internal-prs",
+                  "weight": 1,
+                  "required": false,
+                  "type": "contains",
+                  "target": "file:RELEASE_NOTES.md",
+                  "values": [
+                    "#418",
+                    "#423",
+                    "#431"
+                  ],
+                  "mode": "all",
+                  "caseSensitive": false,
+                  "negate": true
+                },
+                {
+                  "id": "faithful",
+                  "weight": 1,
+                  "required": false,
+                  "type": "llm_judge",
+                  "target": "file:RELEASE_NOTES.md",
+                  "rubric": "The notes must be written for customers, in plain language, and be\nfaithful to the PR list (no invented features). Breaking changes\n(#420 removal of /v1/webhooks, #430 token expiry after 90 days) must\ntell the customer what to do. Score 10 for accurate, clear,\nactionable notes; deduct for inaccuracies, jargon or missing actions.\n",
+                  "passThreshold": 0.7
+                }
+              ],
+              "passThreshold": 0.8
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "skill-generate-invoice-ids",
+            "name": "Generate ACME invoice IDs",
+            "tags": [
+              "skills",
+              "data"
+            ],
+            "prompt": "Create the ACME invoice IDs for year 2026 with sequence numbers 00042,\n00777 and 31415, and write them to new_ids.txt, one per line.\n",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "weight": 1,
+                  "required": false,
+                  "type": "command",
+                  "run": "python3 check_new_ids.py",
+                  "expectExitCode": 0,
+                  "timeoutSec": 60,
+                  "hiddenFixtures": "invoice-generate-hidden"
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "skill-incident-severity",
+            "name": "Classify incident severities by policy",
+            "tags": [
+              "skills",
+              "data"
+            ],
+            "prompt": "Classify every incident in incidents.json using our incident severity\npolicy. Write severities.json mapping each incident id to its level\n(SEV1, SEV2, SEV3 or SEV4), e.g. {\"INC-101\": \"SEV2\"}.\n",
+            "fixtures": "incident-severity",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "weight": 1,
+                  "required": false,
+                  "type": "command",
+                  "run": "python3 check_severities.py",
+                  "expectExitCode": 0,
+                  "timeoutSec": 60,
+                  "hiddenFixtures": "incident-severity-hidden"
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          },
+          {
+            "id": "control-discount-stacking",
+            "name": "Control: stacked discounts",
+            "tags": [
+              "control",
+              "reasoning"
+            ],
+            "prompt": "A bike costs $480. It is discounted 15%, then an extra $20 is taken off,\nthen 5% sales tax is added. What is the final price in dollars, rounded to\nthe cent? Reply with just the number.\n",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "weight": 1,
+                  "required": false,
+                  "type": "numeric",
+                  "target": "final_answer",
+                  "expected": 407.4,
+                  "tolerance": 0.005,
+                  "pick": "last"
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 180,
+              "maxTurns": 5
+            }
+          },
+          {
+            "id": "control-count-todo-files",
+            "name": "Control: count files with TODO markers",
+            "tags": [
+              "control",
+              "tools"
+            ],
+            "prompt": "How many Python source files (*.py) under src/ contain the uppercase\nmarker \"TODO\" at least once? Lowercase \"todo\" does not count, and only\nfiles ending in .py count. Reply with just the number.\n",
+            "fixtures": "todo-count",
+            "files": {},
+            "scoring": {
+              "scorers": [
+                {
+                  "weight": 1,
+                  "required": false,
+                  "type": "numeric",
+                  "target": "final_answer",
+                  "expected": 3,
+                  "tolerance": 0,
+                  "pick": "last"
+                }
+              ]
+            },
+            "limits": {
+              "timeoutSec": 300
+            }
+          }
+        ]
+      },
+      "suiteVersion": "be14b9f932d1",
+      "configs": [
+        {
+          "id": "gpt-oss-120b",
+          "name": "gpt-oss 120B · file+terminal",
+          "description": "gpt-oss:120b via Ollama with file and terminal tools. No memory, no skills.",
+          "model": {
+            "provider": "custom",
+            "name": "gpt-oss:120b-cloud",
+            "baseUrl": "${OLLAMA_BASE_URL:-http://localhost:11434/v1}",
+            "contextLength": 131072,
+            "pricing": {
+              "inputPerMTok": 0.09,
+              "outputPerMTok": 0.45
+            }
+          },
+          "toolsets": [
+            "file",
+            "terminal"
+          ],
+          "skills": {
+            "bundled": false,
+            "include": [],
+            "preload": []
+          },
+          "memory": {
+            "enabled": false,
+            "notes": [],
+            "userProfile": []
+          },
+          "maxTurns": 20
+        },
+        {
+          "id": "gpt-oss-120b-memory-skills",
+          "name": "gpt-oss 120B · +memory +skills",
+          "description": "gpt-oss-120b with persistent memory and the ACME skills enabled.",
+          "model": {
+            "provider": "custom",
+            "name": "gpt-oss:120b-cloud",
+            "baseUrl": "${OLLAMA_BASE_URL:-http://localhost:11434/v1}",
+            "contextLength": 131072,
+            "pricing": {
+              "inputPerMTok": 0.09,
+              "outputPerMTok": 0.45
+            }
+          },
+          "toolsets": [
+            "file",
+            "terminal",
+            "skills",
+            "memory"
+          ],
+          "skills": {
+            "bundled": false,
+            "include": [
+              "acme-invoice-ids",
+              "release-notes-format",
+              "incident-severity"
+            ],
+            "preload": []
+          },
+          "memory": {
+            "enabled": true,
+            "notes": [
+              "House style for customer notices: open with \"Hi there,\" and sign off with \"— The Acme Support Team\". Always include the support address help@acme.example. Never use exclamation marks.",
+              "Staging Postgres lives at db-staging.internal.acme.example on port 6543 (not the default 5432). Production must never be touched from an agent session.",
+              "Commit messages in the main repo use Conventional Commits prefixed with the ticket key in brackets, e.g. \"[OPS-4821] fix(api): …\". The current sprint ticket is OPS-4821.",
+              "Production AWS infrastructure lives in eu-central-1 (Frankfurt). us-east-1 is legacy and must not be used for new resources."
+            ],
+            "userProfile": [
+              "Support engineer at Acme. Prefers concise answers, metric units (km, °C) and 24-hour time in every answer."
+            ]
+          },
+          "maxTurns": 20
+        }
+      ],
+      "configVersions": {
+        "gpt-oss-120b": "3146acb320ae",
+        "gpt-oss-120b-memory-skills": "6bc777b1b466"
+      }
+    }
+  },
+  "report": {
+    "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+    "generatedAt": "2026-10-15T08:04:15.608Z",
+    "confidenceLevel": 0.95,
+    "alpha": 0.050000000000000044,
+    "baselineConfigId": "gpt-oss-120b",
+    "configs": [
+      {
+        "configId": "gpt-oss-120b",
+        "configName": "gpt-oss 120B · file+terminal",
+        "scoredRuns": 33,
+        "errorRuns": 0,
+        "passRate": {
+          "value": 0.18181818181818182,
+          "ci": {
+            "low": 0,
+            "high": 0.45454545454545453
+          }
+        },
+        "meanScore": {
+          "value": 0.4184848484848485,
+          "ci": {
+            "low": 0.2121212121212121,
+            "high": 0.6363636363636364
+          }
+        },
+        "meanCostUsd": 0.002657915454545454,
+        "totalCostUsd": 0.08771121,
+        "costPerPassUsd": 0.014618534999999997,
+        "meanDurationMs": 38322.757575757576,
+        "p95DurationMs": 72900.59999999998,
+        "meanTokens": 27040.272727272728,
+        "meanToolCalls": 4.242424242424242
+      },
+      {
+        "configId": "gpt-oss-120b-memory-skills",
+        "configName": "gpt-oss 120B · +memory +skills",
+        "scoredRuns": 33,
+        "errorRuns": 0,
+        "passRate": {
+          "value": 0.8787878787878788,
+          "ci": {
+            "low": 0.7272727272727272,
+            "high": 1
+          }
+        },
+        "meanScore": {
+          "value": 0.8787878787878788,
+          "ci": {
+            "low": 0.696969696969697,
+            "high": 1
+          }
+        },
+        "meanCostUsd": 0.0019481481818181818,
+        "totalCostUsd": 0.06428889000000002,
+        "costPerPassUsd": 0.002216858275862069,
+        "meanDurationMs": 30640.333333333332,
+        "p95DurationMs": 55584.2,
+        "meanTokens": 19881,
+        "meanToolCalls": 1.9090909090909092
+      }
+    ],
+    "comparisons": [
+      {
+        "baselineConfigId": "gpt-oss-120b",
+        "candidateConfigId": "gpt-oss-120b-memory-skills",
+        "pairedTasks": 11,
+        "passRate": {
+          "baseline": 0.18181818181818182,
+          "candidate": 0.8787878787878788,
+          "delta": 0.6969696969696969,
+          "ci": {
+            "low": 0.4545454545454545,
+            "high": 0.9090909090909091
+          },
+          "pValue": 0.00390625,
+          "pValueAdjusted": 0.00390625
+        },
+        "meanScore": {
+          "baseline": 0.4184848484848485,
+          "candidate": 0.8787878787878788,
+          "delta": 0.4603030303030303,
+          "ci": {
+            "low": 0.22846969696969704,
+            "high": 0.6891060606060607
+          },
+          "pValue": 0.00390625,
+          "pValueAdjusted": 0.00390625
+        },
+        "wins": 9,
+        "losses": 0,
+        "ties": 2,
+        "minimumDetectableEffect": 0.34380470959342924,
+        "verdict": "better",
+        "summary": "gpt-oss 120B · +memory +skills is better than gpt-oss 120B · file+terminal: +69.7 pp pass rate (95% CI +45.5 pp to +90.9 pp; p = 0.004, Holm-adjusted, n = 11 tasks).",
+        "costDeltaUsd": -0.0007097672727272722,
+        "durationDeltaMs": -7682.424242424244
+      }
+    ],
+    "tasks": [
+      {
+        "taskId": "memory-house-style-notice",
+        "taskName": "Customer notice in house style",
+        "tags": [
+          "memory",
+          "writing"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0.5,
+            "meanCostUsd": 0.0056475,
+            "meanDurationMs": 41748.666666666664
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.0013223100000000002,
+            "meanDurationMs": 26034.666666666668
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "memory-staging-database-url",
+        "taskName": "Staging database URL from project context",
+        "tags": [
+          "memory",
+          "tools"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0.5,
+            "meanCostUsd": 0.00094215,
+            "meanDurationMs": 50970.333333333336
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.0019193999999999997,
+            "meanDurationMs": 39417.666666666664
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "memory-preferred-units",
+        "taskName": "Answer in the user's preferred units",
+        "tags": [
+          "memory",
+          "reasoning"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0,
+            "meanCostUsd": 0.00137391,
+            "meanDurationMs": 27796.666666666668
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.00108888,
+            "meanDurationMs": 25475.333333333332
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "memory-commit-convention",
+        "taskName": "Commit message following the team convention",
+        "tags": [
+          "memory",
+          "coding"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0.5,
+            "meanCostUsd": 0.0035406900000000004,
+            "meanDurationMs": 46990.333333333336
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 2,
+            "errors": 0,
+            "passRate": 0.6666666666666666,
+            "meanScore": 0.6666666666666666,
+            "meanCostUsd": 0.00192552,
+            "meanDurationMs": 31280
+          }
+        ],
+        "flaky": true
+      },
+      {
+        "taskId": "memory-production-region",
+        "taskName": "Terraform provider for the production region",
+        "tags": [
+          "memory",
+          "coding"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0.6666666666666666,
+            "meanCostUsd": 0.00213918,
+            "meanDurationMs": 30496.333333333332
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.0015340499999999997,
+            "meanDurationMs": 37216.333333333336
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "skill-validate-invoice-ids",
+        "taskName": "Validate ACME invoice IDs",
+        "tags": [
+          "skills",
+          "data"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0,
+            "meanCostUsd": 0.00325548,
+            "meanDurationMs": 49218
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 1,
+            "errors": 0,
+            "passRate": 0.3333333333333333,
+            "meanScore": 0.3333333333333333,
+            "meanCostUsd": 0.0023385,
+            "meanDurationMs": 41676
+          }
+        ],
+        "flaky": true
+      },
+      {
+        "taskId": "skill-release-notes",
+        "taskName": "Release notes in house format",
+        "tags": [
+          "skills",
+          "writing"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0.4366666666666667,
+            "meanCostUsd": 0.0053874000000000005,
+            "meanDurationMs": 50397
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 2,
+            "errors": 0,
+            "passRate": 0.6666666666666666,
+            "meanScore": 0.6666666666666666,
+            "meanCostUsd": 0.00280824,
+            "meanDurationMs": 23112
+          }
+        ],
+        "flaky": true
+      },
+      {
+        "taskId": "skill-generate-invoice-ids",
+        "taskName": "Generate ACME invoice IDs",
+        "tags": [
+          "skills",
+          "data"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0,
+            "meanCostUsd": 0.00125052,
+            "meanDurationMs": 25222.666666666668
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.0021717900000000003,
+            "meanDurationMs": 37371
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "skill-incident-severity",
+        "taskName": "Classify incident severities by policy",
+        "tags": [
+          "skills",
+          "data"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 0,
+            "errors": 0,
+            "passRate": 0,
+            "meanScore": 0,
+            "meanCostUsd": 0.003890609999999999,
+            "meanDurationMs": 36782
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.00339363,
+            "meanDurationMs": 29109
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "control-discount-stacking",
+        "taskName": "Control: stacked discounts",
+        "tags": [
+          "control",
+          "reasoning"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.00091287,
+            "meanDurationMs": 34405.666666666664
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.00169623,
+            "meanDurationMs": 23933
+          }
+        ],
+        "flaky": false
+      },
+      {
+        "taskId": "control-count-todo-files",
+        "taskName": "Control: count files with TODO markers",
+        "tags": [
+          "control",
+          "tools"
+        ],
+        "cells": [
+          {
+            "configId": "gpt-oss-120b",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.0008967599999999999,
+            "meanDurationMs": 27522.666666666668
+          },
+          {
+            "configId": "gpt-oss-120b-memory-skills",
+            "runs": 3,
+            "passes": 3,
+            "errors": 0,
+            "passRate": 1,
+            "meanScore": 1,
+            "meanCostUsd": 0.0012310799999999998,
+            "meanDurationMs": 22418.666666666668
+          }
+        ],
+        "flaky": false
+      }
+    ],
+    "warnings": [],
+    "method": "Unit of analysis is the task: each task contributes its mean over trials, so every task weighs equally. Intervals are 95% two-level cluster-bootstrap percentile intervals (resample tasks, then trials within each task; 4000 iterations). Comparisons are paired by task. p-values come from a two-sided sign-flip permutation test on per-task differences (exact for ≤ 16 tasks) and are Holm–Bonferroni adjusted across all comparisons against the baseline. A difference is called significant only when the adjusted p-value is below 0.05 and the interval excludes zero. Runs that ended in infrastructure errors (provider outages, throttling, harness crashes) are excluded; timeouts and exhausted turn budgets count as failures. All resampling is seeded with the experiment seed, so the report is reproducible."
+  },
+  "runs": [
+    {
+      "id": "0e2ee6de-fe14-4b7e-8f9e-01baedc94daa",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-count-todo-files",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 24699,
+      "costUsd": 0.00088587,
+      "totalTokens": 9063,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:37:36.902Z",
+      "finishedAt": "2026-10-15T07:39:02.822Z"
+    },
+    {
+      "id": "1e88c027-93c0-4b24-9058-6bb8b094e54b",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-count-todo-files",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 26251,
+      "costUsd": 0.00093708,
+      "totalTokens": 9312,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:54:17.230Z",
+      "finishedAt": "2026-10-15T07:56:10.703Z"
+    },
+    {
+      "id": "4643e920-a036-4a24-b20a-899c8c1ffe53",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-count-todo-files",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 31618,
+      "costUsd": 0.0008673299999999999,
+      "totalTokens": 8969,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:47:58.707Z",
+      "finishedAt": "2026-10-15T07:49:16.160Z"
+    },
+    {
+      "id": "0adec375-39b9-4633-87a0-4593ac013b2f",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-count-todo-files",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 17093,
+      "costUsd": 0.0012215699999999997,
+      "totalTokens": 12921,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:37:49.453Z",
+      "finishedAt": "2026-10-15T07:39:16.729Z"
+    },
+    {
+      "id": "af0348ac-9949-4cb5-9cfb-61774fa5d42e",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-count-todo-files",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 25411,
+      "costUsd": 0.00121626,
+      "totalTokens": 12930,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:55:31.697Z",
+      "finishedAt": "2026-10-15T07:56:58.182Z"
+    },
+    {
+      "id": "7f98c409-7fef-4b53-b8f5-262f26f10d0f",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-count-todo-files",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 24752,
+      "costUsd": 0.00125541,
+      "totalTokens": 13065,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:46:18.542Z",
+      "finishedAt": "2026-10-15T07:47:58.664Z"
+    },
+    {
+      "id": "322cfd39-13fd-40bb-b6cf-17bd5309f096",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-discount-stacking",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 28320,
+      "costUsd": 0.0009143100000000001,
+      "totalTokens": 9147,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:51:02.210Z",
+      "finishedAt": "2026-10-15T07:52:19.964Z"
+    },
+    {
+      "id": "232bf7d2-86ea-44ea-9ca6-258f2913e3bd",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-discount-stacking",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 37083,
+      "costUsd": 0.00091035,
+      "totalTokens": 9147,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:39:53.235Z",
+      "finishedAt": "2026-10-15T07:41:57.711Z"
+    },
+    {
+      "id": "9b59be75-7b9e-4848-8779-95fa38a56bbf",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-discount-stacking",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 37814,
+      "costUsd": 0.00091395,
+      "totalTokens": 9167,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:45:47.719Z",
+      "finishedAt": "2026-10-15T07:47:37.405Z"
+    },
+    {
+      "id": "a757f5c0-cfa1-46a2-9d0f-d0967f47fa6e",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-discount-stacking",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 16289,
+      "costUsd": 0.00127161,
+      "totalTokens": 13149,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:35:49.770Z",
+      "finishedAt": "2026-10-15T07:36:34.572Z"
+    },
+    {
+      "id": "59183b36-08a5-44ea-a83a-ed5338999551",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-discount-stacking",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 28015,
+      "costUsd": 0.00189423,
+      "totalTokens": 19851,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:40:20.184Z",
+      "finishedAt": "2026-10-15T07:42:19.506Z"
+    },
+    {
+      "id": "238d756d-9bf8-4a8c-bdff-bcdf72966573",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "control-discount-stacking",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 27495,
+      "costUsd": 0.0019228499999999998,
+      "totalTokens": 20001,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:50:16.444Z",
+      "finishedAt": "2026-10-15T07:52:00.903Z"
+    },
+    {
+      "id": "c693f987-959c-4cb8-a40e-e3fea694d636",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-commit-convention",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 47503,
+      "costUsd": 0.00366408,
+      "totalTokens": 38788,
+      "toolCalls": 7,
+      "startedAt": "2026-10-15T07:39:16.763Z",
+      "finishedAt": "2026-10-15T07:41:36.864Z"
+    },
+    {
+      "id": "adf48028-2571-4948-b989-bcb75934f30f",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-commit-convention",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 41131,
+      "costUsd": 0.0037312200000000004,
+      "totalTokens": 39282,
+      "toolCalls": 7,
+      "startedAt": "2026-10-15T07:35:02.239Z",
+      "finishedAt": "2026-10-15T07:36:00.028Z"
+    },
+    {
+      "id": "9ec94c45-5059-4964-b110-59d503166fce",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-commit-convention",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 52337,
+      "costUsd": 0.00322677,
+      "totalTokens": 33905,
+      "toolCalls": 6,
+      "startedAt": "2026-10-15T07:58:51.632Z",
+      "finishedAt": "2026-10-15T08:01:21.923Z"
+    },
+    {
+      "id": "0e6c83cd-4382-42c6-aae0-fcd0cfeb6e18",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-commit-convention",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 18487,
+      "costUsd": 0.00193221,
+      "totalTokens": 20269,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:35:02.237Z",
+      "finishedAt": "2026-10-15T07:36:08.011Z"
+    },
+    {
+      "id": "4249ee69-6e1a-43d7-b1e7-933988e321d5",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-commit-convention",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 57083,
+      "costUsd": 0.00196344,
+      "totalTokens": 20400,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:44:17.138Z",
+      "finishedAt": "2026-10-15T07:46:18.222Z"
+    },
+    {
+      "id": "614d3409-b54b-461f-95f4-e8443972375d",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-commit-convention",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 18270,
+      "costUsd": 0.0018809100000000002,
+      "totalTokens": 19703,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:47:37.431Z",
+      "finishedAt": "2026-10-15T07:48:49.777Z"
+    },
+    {
+      "id": "e87e6fd2-9a47-45e5-a2bc-2e54c7b9c4b8",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-house-style-notice",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 46740,
+      "costUsd": 0.00329427,
+      "totalTokens": 33535,
+      "toolCalls": 6,
+      "startedAt": "2026-10-15T07:52:00.936Z",
+      "finishedAt": "2026-10-15T07:53:40.460Z"
+    },
+    {
+      "id": "064dc9b3-9d86-43c4-9fee-230b2b27b578",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-house-style-notice",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 37897,
+      "costUsd": 0.0027356399999999997,
+      "totalTokens": 28280,
+      "toolCalls": 5,
+      "startedAt": "2026-10-15T07:45:08.663Z",
+      "finishedAt": "2026-10-15T07:47:17.005Z"
+    },
+    {
+      "id": "3cbd3617-10d3-4893-aa30-72e5e3fc1779",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-house-style-notice",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 40609,
+      "costUsd": 0.010912589999999998,
+      "totalTokens": 114655,
+      "toolCalls": 17,
+      "startedAt": "2026-10-15T07:56:36.154Z",
+      "finishedAt": "2026-10-15T07:58:10.672Z"
+    },
+    {
+      "id": "ff90e43a-fdd0-416f-a6cd-0910fa1eae3e",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-house-style-notice",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 23296,
+      "costUsd": 0.00126531,
+      "totalTokens": 13159,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:56:10.771Z",
+      "finishedAt": "2026-10-15T07:57:34.148Z"
+    },
+    {
+      "id": "d25efdcf-434e-4ab7-922d-bdc06d0f72ba",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-house-style-notice",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 37639,
+      "costUsd": 0.00129681,
+      "totalTokens": 13273,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:38:52.633Z",
+      "finishedAt": "2026-10-15T07:40:20.093Z"
+    },
+    {
+      "id": "2a7c30f1-ff01-4d0c-b569-e220218309a8",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-house-style-notice",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 17169,
+      "costUsd": 0.0014048100000000003,
+      "totalTokens": 13661,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:36:45.353Z",
+      "finishedAt": "2026-10-15T07:37:36.887Z"
+    },
+    {
+      "id": "b5a5a3b1-333e-4c4d-afe8-c638068c7d0c",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-preferred-units",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 21001,
+      "costUsd": 0.00150606,
+      "totalTokens": 14554,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:51:23.926Z",
+      "finishedAt": "2026-10-15T07:52:37.834Z"
+    },
+    {
+      "id": "e1060e75-4a1a-46cf-b92f-3828819fe371",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-preferred-units",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 20726,
+      "costUsd": 0.00047772000000000005,
+      "totalTokens": 4512,
+      "toolCalls": 0,
+      "startedAt": "2026-10-15T07:58:06.305Z",
+      "finishedAt": "2026-10-15T07:58:51.569Z"
+    },
+    {
+      "id": "d1577261-1908-42f2-8809-949e603e5e43",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-preferred-units",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 41663,
+      "costUsd": 0.00213795,
+      "totalTokens": 20107,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:39:02.839Z",
+      "finishedAt": "2026-10-15T07:40:57.419Z"
+    },
+    {
+      "id": "e249e3db-fab0-45b8-89fb-afbed7a9ba4e",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-preferred-units",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 34766,
+      "costUsd": 0.00126657,
+      "totalTokens": 13109,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:48:26.215Z",
+      "finishedAt": "2026-10-15T07:49:47.385Z"
+    },
+    {
+      "id": "2d07748a-0c27-41b2-a4f1-f4af75cb7cb9",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-preferred-units",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 24397,
+      "costUsd": 0.0013410899999999999,
+      "totalTokens": 13401,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:53:40.533Z",
+      "finishedAt": "2026-10-15T07:55:48.054Z"
+    },
+    {
+      "id": "bdabb78b-ab2c-4e22-ac37-4487406bdbb3",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-preferred-units",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 17263,
+      "costUsd": 0.0006589799999999999,
+      "totalTokens": 6506,
+      "toolCalls": 0,
+      "startedAt": "2026-10-15T07:56:58.232Z",
+      "finishedAt": "2026-10-15T07:58:06.289Z"
+    },
+    {
+      "id": "06238024-545e-4867-a8bd-f9431389b53b",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-production-region",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.6666666666666666,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 17493,
+      "costUsd": 0.00142452,
+      "totalTokens": 13992,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:36:34.589Z",
+      "finishedAt": "2026-10-15T07:37:24.755Z"
+    },
+    {
+      "id": "0365bb10-3be9-46b9-b3f8-248a045c2962",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-production-region",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.6666666666666666,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 51517,
+      "costUsd": 0.00402228,
+      "totalTokens": 41320,
+      "toolCalls": 7,
+      "startedAt": "2026-10-15T07:42:53.138Z",
+      "finishedAt": "2026-10-15T07:44:52.187Z"
+    },
+    {
+      "id": "6c38b835-d49d-41b9-96c2-09102e1b4fd7",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-production-region",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.6666666666666666,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 22479,
+      "costUsd": 0.00097074,
+      "totalTokens": 9382,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:37:17.069Z",
+      "finishedAt": "2026-10-15T07:38:08.421Z"
+    },
+    {
+      "id": "dccbc86e-09c5-4ab4-994f-d2554de45cd0",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-production-region",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 2,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 70754,
+      "costUsd": 0.00132876,
+      "totalTokens": 13376,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T08:00:38.358Z",
+      "finishedAt": "2026-10-15T08:03:48.956Z"
+    },
+    {
+      "id": "ee7608d0-0c74-4157-8dad-2bd4742ad702",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-production-region",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 16157,
+      "costUsd": 0.001332,
+      "totalTokens": 13352,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:37:02.692Z",
+      "finishedAt": "2026-10-15T07:37:49.429Z"
+    },
+    {
+      "id": "d2e4b5de-dbb8-401b-87bb-cf3602916e09",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-production-region",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 24738,
+      "costUsd": 0.0019413899999999999,
+      "totalTokens": 20039,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:47:17.077Z",
+      "finishedAt": "2026-10-15T07:48:35.963Z"
+    },
+    {
+      "id": "bd693a2e-cfe1-44f8-9336-542a7827ffe8",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-staging-database-url",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 29763,
+      "costUsd": 0.00094896,
+      "totalTokens": 9332,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:55:03.371Z",
+      "finishedAt": "2026-10-15T07:56:36.125Z"
+    },
+    {
+      "id": "ea72c7e2-4bbd-47fa-bdd7-efbb3f2b6da6",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-staging-database-url",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 2,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 98653,
+      "costUsd": 0.00094986,
+      "totalTokens": 9390,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T08:00:36.175Z",
+      "finishedAt": "2026-10-15T08:03:31.642Z"
+    },
+    {
+      "id": "9a1f73da-d7a0-4886-b267-361c66d80132",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-staging-database-url",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.5,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 24495,
+      "costUsd": 0.00092763,
+      "totalTokens": 9255,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:41:36.945Z",
+      "finishedAt": "2026-10-15T07:43:08.871Z"
+    },
+    {
+      "id": "a91aae53-dfbd-4393-b0af-a7da47ff261c",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-staging-database-url",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 34716,
+      "costUsd": 0.0018910799999999998,
+      "totalTokens": 19880,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:58:10.696Z",
+      "finishedAt": "2026-10-15T07:59:23.798Z"
+    },
+    {
+      "id": "88deb44e-9490-42c3-9f4a-2c670115415a",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-staging-database-url",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 32633,
+      "costUsd": 0.00129258,
+      "totalTokens": 13242,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:48:36.003Z",
+      "finishedAt": "2026-10-15T07:50:15.104Z"
+    },
+    {
+      "id": "364ac663-4446-4146-a6d2-181987ad8120",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "memory-staging-database-url",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 50904,
+      "costUsd": 0.0025745399999999993,
+      "totalTokens": 26962,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:48:49.823Z",
+      "finishedAt": "2026-10-15T07:51:02.065Z"
+    },
+    {
+      "id": "29558cd7-9bcf-4993-9c39-2e1972bd57cd",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-generate-invoice-ids",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 33306,
+      "costUsd": 0.0009647099999999999,
+      "totalTokens": 9359,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:58:41.262Z",
+      "finishedAt": "2026-10-15T08:00:36.110Z"
+    },
+    {
+      "id": "8573370d-fa25-4387-8ac0-d7a0cde14198",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-generate-invoice-ids",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 28577,
+      "costUsd": 0.0018765899999999998,
+      "totalTokens": 18835,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:43:16.623Z",
+      "finishedAt": "2026-10-15T07:45:08.571Z"
+    },
+    {
+      "id": "f04d8a68-3a3f-4e4e-9001-79e108bd2c8a",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-generate-invoice-ids",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 13785,
+      "costUsd": 0.00091026,
+      "totalTokens": 9190,
+      "toolCalls": 1,
+      "startedAt": "2026-10-15T07:36:00.042Z",
+      "finishedAt": "2026-10-15T07:36:45.336Z"
+    },
+    {
+      "id": "9acee1ae-bc1e-46ff-b2d1-748aec6aee6e",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-generate-invoice-ids",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 54585,
+      "costUsd": 0.00215199,
+      "totalTokens": 21679,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:52:37.855Z",
+      "finishedAt": "2026-10-15T07:55:03.293Z"
+    },
+    {
+      "id": "ae4db008-52ea-4273-962e-4cbd8b44a10d",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-generate-invoice-ids",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 37861,
+      "costUsd": 0.00215523,
+      "totalTokens": 21679,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:40:57.991Z",
+      "finishedAt": "2026-10-15T07:42:52.996Z"
+    },
+    {
+      "id": "0543553f-c5fb-49ae-848d-676d3669bd02",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-generate-invoice-ids",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 19667,
+      "costUsd": 0.0022081500000000003,
+      "totalTokens": 21839,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:57:24.084Z",
+      "finishedAt": "2026-10-15T07:58:23.605Z"
+    },
+    {
+      "id": "25e018b3-e4a2-4542-aad9-05fdd62d7904",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-incident-severity",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 20418,
+      "costUsd": 0.0038073599999999997,
+      "totalTokens": 39892,
+      "toolCalls": 7,
+      "startedAt": "2026-10-15T07:36:08.028Z",
+      "finishedAt": "2026-10-15T07:37:02.667Z"
+    },
+    {
+      "id": "8dd80297-84e0-4816-99f9-833bc8b958fc",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-incident-severity",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 44843,
+      "costUsd": 0.00401031,
+      "totalTokens": 40951,
+      "toolCalls": 7,
+      "startedAt": "2026-10-15T07:43:49.538Z",
+      "finishedAt": "2026-10-15T07:45:47.603Z"
+    },
+    {
+      "id": "92a06344-4e01-4e59-b397-e282c9bce691",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-incident-severity",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 45085,
+      "costUsd": 0.0038541599999999997,
+      "totalTokens": 37512,
+      "toolCalls": 6,
+      "startedAt": "2026-10-15T07:42:19.526Z",
+      "finishedAt": "2026-10-15T07:44:17.058Z"
+    },
+    {
+      "id": "bf77e152-51a2-4a4c-a639-456d6801da12",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-incident-severity",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 26529,
+      "costUsd": 0.0029340900000000003,
+      "totalTokens": 29701,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:51:39.648Z",
+      "finishedAt": "2026-10-15T07:53:00.431Z"
+    },
+    {
+      "id": "07e649df-d5dc-4593-9221-4a189c9f33ef",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-incident-severity",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 22780,
+      "costUsd": 0.0036054,
+      "totalTokens": 36652,
+      "toolCalls": 4,
+      "startedAt": "2026-10-15T07:35:02.240Z",
+      "finishedAt": "2026-10-15T07:36:25.600Z"
+    },
+    {
+      "id": "1f38ebd4-18a5-4987-a118-f34ebcd52186",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-incident-severity",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 38018,
+      "costUsd": 0.0036414,
+      "totalTokens": 37168,
+      "toolCalls": 4,
+      "startedAt": "2026-10-15T07:53:00.479Z",
+      "finishedAt": "2026-10-15T07:55:31.671Z"
+    },
+    {
+      "id": "86a3944f-1f94-4824-ac30-839dae937114",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-release-notes",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.39,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 30179,
+      "costUsd": 0.00375075,
+      "totalTokens": 36371,
+      "toolCalls": 6,
+      "startedAt": "2026-10-15T07:46:53.283Z",
+      "finishedAt": "2026-10-15T07:48:26.105Z"
+    },
+    {
+      "id": "e4ac9be7-36f5-4aa9-a869-443578d2aa6f",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-release-notes",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.6,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 42418,
+      "costUsd": 0.00437508,
+      "totalTokens": 44180,
+      "toolCalls": 7,
+      "startedAt": "2026-10-15T07:41:57.731Z",
+      "finishedAt": "2026-10-15T07:43:49.345Z"
+    },
+    {
+      "id": "0382f65a-4bd9-4293-bf29-1828c4819484",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-release-notes",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0.32,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 78594,
+      "costUsd": 0.00803637,
+      "totalTokens": 81937,
+      "toolCalls": 14,
+      "startedAt": "2026-10-15T07:58:23.625Z",
+      "finishedAt": "2026-10-15T08:00:38.314Z"
+    },
+    {
+      "id": "22dcfd63-0540-4a74-b62d-a78898666898",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-release-notes",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 24280,
+      "costUsd": 0.00229707,
+      "totalTokens": 21407,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:49:47.434Z",
+      "finishedAt": "2026-10-15T07:51:39.596Z"
+    },
+    {
+      "id": "5169bc3f-cd59-439d-b954-7ee61081c2a8",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-release-notes",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 21956,
+      "costUsd": 0.00308727,
+      "totalTokens": 30139,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:57:34.240Z",
+      "finishedAt": "2026-10-15T07:58:41.203Z"
+    },
+    {
+      "id": "860aabf1-10d7-4590-907c-d47a24d324e2",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-release-notes",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 23100,
+      "costUsd": 0.00304038,
+      "totalTokens": 29914,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:36:25.636Z",
+      "finishedAt": "2026-10-15T07:37:16.991Z"
+    },
+    {
+      "id": "a72e3a47-d3aa-4d9f-971f-bb3fd61a4c67",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-validate-invoice-ids",
+      "configId": "gpt-oss-120b",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 69105,
+      "costUsd": 0.00216963,
+      "totalTokens": 22311,
+      "toolCalls": 3,
+      "startedAt": "2026-10-15T07:59:23.925Z",
+      "finishedAt": "2026-10-15T08:02:17.413Z"
+    },
+    {
+      "id": "926546a8-266d-4ef0-8b45-2596a72b4018",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-validate-invoice-ids",
+      "configId": "gpt-oss-120b",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 31213,
+      "costUsd": 0.0013180499999999999,
+      "totalTokens": 13529,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:49:16.267Z",
+      "finishedAt": "2026-10-15T07:51:23.907Z"
+    },
+    {
+      "id": "390b8464-c3a4-43c4-9ed6-0c4589d713cb",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-validate-invoice-ids",
+      "configId": "gpt-oss-120b",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 47336,
+      "costUsd": 0.0062787599999999995,
+      "totalTokens": 63168,
+      "toolCalls": 11,
+      "startedAt": "2026-10-15T07:35:02.233Z",
+      "finishedAt": "2026-10-15T07:35:49.729Z"
+    },
+    {
+      "id": "ad60f34d-255d-4d13-9ecc-d75c4a9e283b",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-validate-invoice-ids",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 1,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": "Response remained truncated after 4 continuation attempts",
+      "durationMs": 45861,
+      "costUsd": 0.00130752,
+      "totalTokens": 13708,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:44:52.267Z",
+      "finishedAt": "2026-10-15T07:46:53.150Z"
+    },
+    {
+      "id": "34dd9e70-27af-4bd2-98d7-f2e205b40bba",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-validate-invoice-ids",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 2,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "fail",
+      "score": 0,
+      "errorKind": null,
+      "errorMessage": "Response remained truncated after 4 continuation attempts",
+      "durationMs": 29425,
+      "costUsd": 0.00128385,
+      "totalTokens": 13629,
+      "toolCalls": 2,
+      "startedAt": "2026-10-15T07:55:48.076Z",
+      "finishedAt": "2026-10-15T07:57:24.059Z"
+    },
+    {
+      "id": "7cfca990-208a-4da0-9892-14f75b54a2d6",
+      "experimentId": "d225a68d-6bb6-40cd-9dd4-d77b2cc21866",
+      "taskId": "skill-validate-invoice-ids",
+      "configId": "gpt-oss-120b-memory-skills",
+      "trial": 3,
+      "attempt": 1,
+      "status": "completed",
+      "outcome": "pass",
+      "score": 1,
+      "errorKind": null,
+      "errorMessage": null,
+      "durationMs": 49742,
+      "costUsd": 0.004424129999999999,
+      "totalTokens": 46309,
+      "toolCalls": 5,
+      "startedAt": "2026-10-15T07:37:24.830Z",
+      "finishedAt": "2026-10-15T07:38:52.593Z"
+    }
+  ]
+}

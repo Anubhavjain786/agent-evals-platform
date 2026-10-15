@@ -1,6 +1,6 @@
 # Video of the working system
 
-- **Automated walkthrough (silent, ~2 min):** [`docs/media/demo.mp4`](media/demo.mp4) — recorded from
+- **Automated walkthrough (silent, captioned, ~70 s):** [`docs/media/demo.mp4`](media/demo.mp4) — recorded from
   the real running system with real experiment data by `npm run demo:record`
   (Chrome DevTools screencast → ffmpeg), so it can be regenerated at any time.
 - **Narrated walkthrough:** record with the script below (QuickTime / Loom, ~5 minutes).

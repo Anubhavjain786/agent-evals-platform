@@ -47,10 +47,11 @@ const offset = (ts: number) => `+${((ts - start.value) / 1000).toFixed(1)}s`;
 function summary(call: ToolCall): string {
   const input = call.input as Record<string, unknown> | null;
   if (!input || typeof input !== 'object') return '';
-  const preferred = input.command ?? input.path ?? input.query ?? input.name ?? input.pattern;
-  if (typeof preferred === 'string')
-    return preferred.length > 140 ? `${preferred.slice(0, 140)}…` : preferred;
-  return '';
+  const preferred = ['command', 'path', 'query', 'pattern', 'name']
+    .map((key) => input[key])
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0);
+  if (!preferred) return '';
+  return preferred.length > 140 ? `${preferred.slice(0, 140)}…` : preferred;
 }
 
 function pretty(output: string): string {
