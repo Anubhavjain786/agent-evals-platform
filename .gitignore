@@ -25,3 +25,6 @@ apps/api/data/
 
 # Task fixtures are test data (including fake .env secrets and logs): always commit them
 !evals/fixtures/**
+
+# Personal notes for recording the video (kept local, not published)
+docs/VIDEO.md

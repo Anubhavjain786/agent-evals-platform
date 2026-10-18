@@ -26,7 +26,7 @@ SQLite with Drizzle · Hermes Agent v0.22.1 · Docker
 | Known limits                                         | [docs/LIMITATIONS.md](docs/LIMITATIONS.md)                                                |
 | Approximate costs                                    | [docs/COSTS.md](docs/COSTS.md)                                                            |
 | Results of a real experiment with two configurations | [docs/experiments/ANALYSIS.md](docs/experiments/ANALYSIS.md) (plus full reports and data) |
-| Video of the working system                          | [docs/VIDEO.md](docs/VIDEO.md)                                                            |
+| Video of the working system                          | [docs/media/demo.mp4](docs/media/demo.mp4) (recorded with `npm run demo:record`)          |
 
 ![Experiment result: memory and skills on vs off](docs/media/experiment.png)
 
